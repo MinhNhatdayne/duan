@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#A4E7F2">
+
+    <!-- Miếng uốn lượn trên góc phải (dùng 1 png của bạn) -->
+<!--    <ImageView-->
+<!--        android:id="@+id/imgHeader"-->
+<!--        android:layout_width="220dp"-->
+<!--        android:layout_height="180dp"-->
+<!--        android:scaleType="fitEnd"-->
+<!--        android:layout_alignParentTop="true"-->
+<!--        android:layout_alignParentEnd="true"-->
+<!--        android:src="@drawable/bg_header_wave" />-->
+
+    <!-- Nội dung cuộn được -->
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Login title -->
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:textColor="#000000" />
+
+            <!-- Login with -->
+            <TextView
+                android:id="@+id/txtLoginWith"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Login with"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+
+            <!-- Nút Google + Facebook -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardUseCompatPadding="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_google" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardUseCompatPadding="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_facebook" />
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- Email label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Email"
+                android:textSize="14sp"
+                android:textColor="#000000" />
+
+            <!-- Email input -->
+            <EditText
+                android:id="@+id/edtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_edittext"
+                android:hint="example@gmail.com"
+                android:paddingHorizontal="16dp"
+                android:inputType="textEmailAddress"
+                android:textColor="@android:color/black"
+                android:textColorHint="#80000000"
+                />
+
+            <!-- Password label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Password"
+                android:textSize="14sp"
+                android:textColor="#000000" />
+
+            <!-- Password + Forgot -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_edittext"
+                    android:hint="Enter password"
+                    android:paddingHorizontal="16dp"
+                    android:inputType="textPassword"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="#80000000"
+                    />
+
+                <TextView
+                    android:id="@+id/txtForgot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginTop="14dp"
+                    android:text="Forgot Password?"
+                    android:textSize="12sp"
+                    android:textColor="#2EA9FF" />
+            </RelativeLayout>
+
+            <!-- Welcome text -->
+            <TextView
+                android:id="@+id/txtWelcome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:text="Welcome back! Ready to jump back in?"
+                android:textSize="14sp"
+                android:textColor="#000000" />
+
+            <!-- Nút Sign in -->
+            <Button
+                android:id="@+id/btnSignIn"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                app:backgroundTint="null"
+                android:background="@drawable/bg_button_signin"
+                android:text="Sign in"
+                android:textAllCaps="false"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF" />
+
+            <!-- Create account -->
+            <TextView
+                android:id="@+id/txtCreate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="Don’t have an account? Create an account"
+                android:textSize="13sp"
+                android:textColor="#000000">
+            </TextView>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
