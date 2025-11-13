@@ -25,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        edtEmail = findViewById(R.id.edtEmail);
-        edtPassword = findViewById(R.id.edtPassword);
-        btnSignIn = findViewById(R.id.btnSignIn);
-        txtForgot = findViewById(R.id.txtForgot);
-        txtCreate = findViewById(R.id.txtCreate);
+//        edtEmail = findViewById(R.id.edtEmail);
+//        edtPassword = findViewById(R.id.edtPassword);
+//        btnSignIn = findViewById(R.id.btnSignIn);
+//        txtForgot = findViewById(R.id.txtForgot);
+//        txtCreate = findViewById(R.id.txtCreate);
     }
 }
