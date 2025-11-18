@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F5F5F5"
+        tools:context=".activities.NewAppointmentActivity">
+
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#2196F3"
+            app:title="Tạo Cuộc Hẹn Mới"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="4dp"
+                    android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1. Thông tin Bệnh nhân"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#333333"
+                            android:layout_marginBottom="8dp"/>
+
+                    <EditText
+                            android:id="@+id/et_patient_info"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Nhập tên hoặc SĐT để tìm kiếm bệnh nhân"
+                            android:inputType="text"
+                            android:padding="12dp"
+                            android:background="@drawable/rounded_edittext_background"
+                            android:drawableRight="@android:drawable/ic_menu_search"/>
+
+                    <TextView
+                            android:id="@+id/tv_selected_patient"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textStyle="italic"
+                            android:textColor="#4CAF50"
+                            android:visibility="gone"
+                            tools:text="Bệnh nhân đã chọn: Nguyễn Thị Lan (090xxxxxxx)"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="4dp"
+                    android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2. Chọn Dịch vụ/Lý do khám"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#333333"
+                            android:layout_marginBottom="8dp"/>
+
+                    <Spinner
+                            android:id="@+id/spinner_service"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="12dp"
+                            android:background="@drawable/spinner_border"/>
+
+                    <EditText
+                            android:id="@+id/et_note"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:hint="Ghi chú thêm (Ví dụ: Đau răng số 7)"
+                            android:inputType="textMultiLine"
+                            android:minLines="2"
+                            android:padding="12dp"
+                            android:background="@drawable/rounded_edittext_background"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="4dp"
+                    android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3. Chi tiết Thời gian và Bác sĩ"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#333333"
+                            android:layout_marginBottom="12dp"/>
+
+                    <Button
+                            android:id="@+id/btn_select_doctor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Chọn Bác sĩ (Bắt buộc)"
+                            android:backgroundTint="#00BCD4"
+                            android:drawableRight="@android:drawable/ic_menu_send"
+                            app:cornerRadius="8dp"
+                            android:layout_marginBottom="12dp"/>
+
+                    <Button
+                            android:id="@+id/btn_select_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Chọn Ngày &amp; Giờ (Bắt buộc)"
+                            android:backgroundTint="#009688"
+                            android:drawableRight="@android:drawable/ic_menu_send"
+                            app:cornerRadius="8dp"/>
+
+                    <TextView
+                            android:id="@+id/tv_selected_doctor_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textStyle="italic"
+                            android:textColor="#8BC34A"
+                            android:visibility="gone"
+                            tools:text="Đã chọn: BS. Đoàn Hồng Lê - 14:00, 14/10/2024"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                    android:id="@+id/btn_confirm_appointment"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="XÁC NHẬN TẠO CUỘC HẸN"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#FF5722"
+                    app:cornerRadius="10dp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

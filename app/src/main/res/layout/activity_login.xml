@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#A4E7F2">
+    android:background="@color/white"
+    android:id="@+id/Login">
 
     <!-- Miếng uốn lượn trên góc phải (dùng 1 png của bạn) -->
 <!--    <ImageView-->
@@ -39,49 +40,49 @@
                 android:textColor="#000000" />
 
             <!-- Login with -->
-            <TextView
-                android:id="@+id/txtLoginWith"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Login with"
-                android:textSize="16sp"
-                android:textColor="#000000" />
+<!--            <TextView-->
+<!--                android:id="@+id/txtLoginWith"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:text="Login with"-->
+<!--                android:textSize="16sp"-->
+<!--                android:textColor="#000000" />-->
 
             <!-- Nút Google + Facebook -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="12dp"-->
+<!--                android:orientation="horizontal">-->
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    android:layout_marginEnd="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardUseCompatPadding="true">
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="52dp"-->
+<!--                    android:layout_height="52dp"-->
+<!--                    android:layout_marginEnd="12dp"-->
+<!--                    app:cardCornerRadius="12dp"-->
+<!--                    app:cardUseCompatPadding="true">-->
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_google" />
-                </androidx.cardview.widget.CardView>
+<!--                    <ImageView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:padding="10dp"-->
+<!--                        android:src="@drawable/ic_google" />-->
+<!--                </androidx.cardview.widget.CardView>-->
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardUseCompatPadding="true">
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="52dp"-->
+<!--                    android:layout_height="52dp"-->
+<!--                    app:cardCornerRadius="12dp"-->
+<!--                    app:cardUseCompatPadding="true">-->
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_facebook" />
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
+<!--                    <ImageView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:padding="10dp"-->
+<!--                        android:src="@drawable/ic_facebook" />-->
+<!--                </androidx.cardview.widget.CardView>-->
+<!--            </LinearLayout>-->
 
             <!-- Email label -->
             <TextView
@@ -162,7 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="16dp"
-                app:backgroundTint="null"
+                app:backgroundTint="@null"
                 android:background="@drawable/bg_button_signin"
                 android:text="Sign in"
                 android:textAllCaps="false"
@@ -170,18 +171,25 @@
                 android:textColor="#FFFFFF" />
 
             <!-- Create account -->
-            <TextView
-                android:id="@+id/txtCreate"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center"
-                android:text="Don’t have an account? Create an account"
-                android:textSize="13sp"
-                android:textColor="#000000">
-            </TextView>
-
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Don’t have an account?" />
+                <TextView
+                    android:id="@+id/txtCreate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text=" Create an account"
+                    android:textSize="13sp"
+                    android:textColor="#2EA9FF" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
 </RelativeLayout>
