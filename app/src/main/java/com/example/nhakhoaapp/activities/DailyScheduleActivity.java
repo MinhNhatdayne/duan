@@ -1,9 +1,10 @@
 package com.example.nhakhoaapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.DailyAppointmentAdapter;
