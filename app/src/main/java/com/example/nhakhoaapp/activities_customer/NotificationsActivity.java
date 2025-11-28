@@ -1,4 +1,4 @@
-package com.example.nhakhoaapp.activities;
+package com.example.nhakhoaapp.activities_customer;
 
 import android.os.Bundle;
 import android.view.View;

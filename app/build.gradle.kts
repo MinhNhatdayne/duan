@@ -40,4 +40,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Retrofit (Cần thiết)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Converter cho JSON (Bắt buộc, nên dùng Gson)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

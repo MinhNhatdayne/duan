@@ -1,10 +1,12 @@
-package com.example.nhakhoaapp.activities;
+package com.example.nhakhoaapp.activities_customer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhakhoaapp.R;
@@ -49,6 +51,40 @@ public class BookingActivity extends AppCompatActivity {
         });
 
         // 4. Xử lý Bottom Navigation
-        // ...
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            handleBottomNav(item);
+            return true;
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_booking);
+        }
+    }
+
+    /** Điều hướng BottomNavigation – tránh mở Activity đang mở */
+    private void handleBottomNav(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            startActivity(new Intent(this, DashboardActivity.class));
+            return;
+
+        } else if (id == R.id.nav_booking) {
+            return; // already here
+
+        } else if (id == R.id.nav_notifications) {
+            startActivity(new Intent(this, NotificationsActivity.class));
+            return;
+
+        } else if (id == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            return;
+        }
+
     }
 }

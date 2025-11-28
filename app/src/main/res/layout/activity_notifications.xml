@@ -4,7 +4,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.NotificationsActivity">
+        tools:context=".activities.NotificationsActivity"
+        android:background="@android:color/white">
 
     <RelativeLayout
             android:id="@+id/header_layout"
@@ -29,7 +30,7 @@
                 android:id="@+id/img_search_button"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@android:drawable/ic_search_category_default"
+                android:src="@drawable/ic_search"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="Tìm kiếm thông báo"
@@ -73,6 +74,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:itemIconTint="@color/bottom_nav_color"
+            app:itemTextColor="@color/bottom_nav_color"
             app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhakhoaapp.R;
+import com.example.nhakhoaapp.activities_customer.DashboardActivity;
 
 public class LoginActivity extends AppCompatActivity {
 

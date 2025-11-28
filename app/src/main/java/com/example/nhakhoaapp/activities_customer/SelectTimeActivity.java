@@ -1,8 +1,10 @@
-package com.example.nhakhoaapp.activities;
+package com.example.nhakhoaapp.activities_customer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,16 +36,32 @@ public class SelectTimeActivity extends AppCompatActivity {
     private DateSlot selectedDateSlot = null;
     private TimeSlot selectedTimeSlot = null;
 
+    private TextView tvServiceName;
+    private TextView tvDoctorDetails;
+
+    private String serviceName;
+    private String doctorName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_time);
+
+        // read extras from intent
+        serviceName = getIntent().getStringExtra("SERVICE_NAME");
+        doctorName = getIntent().getStringExtra("DOCTOR_NAME");
 
         rvDateSlots = findViewById(R.id.rv_date_slots);
         rvTimeSlots = findViewById(R.id.rv_time_slots);
         btnContinue = findViewById(R.id.btn_continue);
         ImageView imgBack = findViewById(R.id.img_back_button);
         imgBack.setOnClickListener(v -> finish());
+
+        tvServiceName = findViewById(R.id.tv_service_name);
+        tvDoctorDetails = findViewById(R.id.tv_doctor_details);
+
+        if (serviceName != null) tvServiceName.setText(serviceName);
+        if (doctorName != null) tvDoctorDetails.setText(doctorName);
 
         setupDateRecyclerView();
         setupTimeRecyclerView();
@@ -55,10 +73,13 @@ public class SelectTimeActivity extends AppCompatActivity {
                 return;
             }
 
-            Toast.makeText(this,
-                    "Đã đặt lịch ngày: " + selectedDateSlot.getDate() +
-                            " lúc: " + selectedTimeSlot.getTime(),
-                    Toast.LENGTH_LONG).show();
+            // Start ConfirmationActivity with appointment details
+            Intent intent = new Intent(SelectTimeActivity.this, com.example.nhakhoaapp.activities_staff.ConfirmationActivity.class);
+            intent.putExtra("SERVICE_NAME", serviceName != null ? serviceName : "Chỉnh nha");
+            intent.putExtra("DOCTOR_NAME", doctorName != null ? doctorName : "Bác sĩ");
+            intent.putExtra("SELECTED_DATE", selectedDateSlot.getDate() + ""); // depends on DateSlot implementation
+            intent.putExtra("SELECTED_TIME", selectedTimeSlot.getTime());
+            startActivity(intent);
         });
     }
 

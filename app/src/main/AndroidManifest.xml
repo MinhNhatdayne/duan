@@ -12,43 +12,43 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.NhaKhoaApp">
         <activity
-                android:name=".activities.AppointmentManagerActivity"
+                android:name=".activities_staff.AppointmentManagerActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.NewAppointmentActivity"
+                android:name=".activities_staff.NewAppointmentActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.DailyScheduleActivity"
+                android:name=".activities_staff.DailyScheduleActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.StaffDashboardActivity"
+                android:name=".activities_staff.StaffDashboardActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.NotificationsActivity"
+                android:name=".activities_customer.NotificationsActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.ProfileActivity"
+                android:name=".activities_customer.ProfileActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.ConfirmationActivity"
+                android:name=".activities_staff.ConfirmationActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.SelectTimeActivity"
+                android:name=".activities_customer.SelectTimeActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.SelectDoctorActivity"
+                android:name=".activities_customer.SelectDoctorActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.BookingActivity"
+                android:name=".activities_customer.BookingActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.DashboardActivity"
+                android:name=".activities.LoginActivity"
                 android:exported="false" />
         <activity
                 android:name=".activities.RegisterActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities.LoginActivity"
+                android:name=".activities_customer.DashboardActivity"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- disabled state -->
+    <item android:color="#FFBDBDBD" android:state_enabled="false" />
+
+    <!-- active (checked) -->
+    <item android:color="@color/primary_blue" android:state_checked="true" />
+
+    <!-- default/inactive -->
+    <item android:color="#FF9E9E9E" />
+</selector>

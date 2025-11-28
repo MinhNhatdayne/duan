@@ -5,7 +5,7 @@
         android:background="#F7F9FC"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.AppointmentManagerActivity">
+        tools:context=".activities_staff.AppointmentManagerActivity">
 
     <LinearLayout
             android:layout_width="match_parent"
