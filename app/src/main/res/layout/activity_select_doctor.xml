@@ -4,7 +4,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".activities.SelectDoctorActivity">
+        android:background="#F7F9FC"
+        tools:context=".activities_customer.SelectDoctorActivity">
 
     <LinearLayout
             android:id="@+id/header_layout"
