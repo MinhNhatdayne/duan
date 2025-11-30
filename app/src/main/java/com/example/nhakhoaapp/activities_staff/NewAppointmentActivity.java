@@ -1,5 +1,6 @@
 package com.example.nhakhoaapp.activities_staff;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,8 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.nhakhoaapp.R;
+// Import các Activity khác nếu cần, ví dụ SelectDoctorActivity
 
 public class NewAppointmentActivity extends AppCompatActivity {
 
@@ -24,6 +27,7 @@ public class NewAppointmentActivity extends AppCompatActivity {
     // Giả lập dữ liệu đã chọn
     private String selectedDoctorId = null; 
     private String selectedTimeSlot = null;
+    private String selectedDoctorName = ""; // Thêm biến lưu tên bác sĩ để hiển thị lại
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +35,11 @@ public class NewAppointmentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_appointment);
 
         // Thiết lập Toolbar
-        setSupportActionBar(findViewById(R.id.toolbar));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Tạo Cuộc Hẹn Mới");
         }
 
         // Ánh xạ View
@@ -45,20 +51,19 @@ public class NewAppointmentActivity extends AppCompatActivity {
         tvSelectedPatient = findViewById(R.id.tv_selected_patient);
         tvSelectedDoctorTime = findViewById(R.id.tv_selected_doctor_time);
 
-
         // Khởi tạo Spinner Dịch vụ
         setupServiceSpinner();
 
         // Xử lý sự kiện
         setupClickListeners();
         
-        // Giả lập đã có bệnh nhân được chọn
-        tvSelectedPatient.setText("Bệnh nhân đã chọn: Nguyễn Thị Lan (090xxxxxxx)");
+        // Giả lập: Người dùng vừa nhập xong tìm kiếm -> Hiển thị bệnh nhân (Demo)
+        tvSelectedPatient.setText("Bệnh nhân: Nguyễn Thị Lan (090xxxxxxx)");
         tvSelectedPatient.setVisibility(View.VISIBLE);
     }
     
     private void setupServiceSpinner() {
-        String[] services = {"Khám Tổng Quát", "Chỉnh Nha", "Tẩy Trắng Răng", "Điều Trị Tủy"};
+        String[] services = {"Khám Tổng Quát", "Chỉnh Nha", "Tẩy Trắng Răng", "Điều Trị Tủy", "Nhổ Răng"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, 
             android.R.layout.simple_spinner_dropdown_item, services);
         spinnerService.setAdapter(adapter);
@@ -68,63 +73,79 @@ public class NewAppointmentActivity extends AppCompatActivity {
         
         // 1. Tìm kiếm Bệnh nhân
         etPatientInfo.setOnClickListener(v -> {
-            Toast.makeText(this, "Mở màn hình tìm kiếm/chọn bệnh nhân", Toast.LENGTH_SHORT).show();
-            // TODO: Mở Intent đến màn hình tìm kiếm/chọn BN
+            Toast.makeText(this, "Chức năng Tìm kiếm Bệnh nhân", Toast.LENGTH_SHORT).show();
+            // TODO: Intent -> PatientSearchActivity
         });
 
-        // 2. Chọn Bác sĩ (Tham khảo image_dca43b.png)
+        // 2. Chọn Bác sĩ
         btnSelectDoctor.setOnClickListener(v -> {
             Toast.makeText(this, "Chuyển đến màn hình Chọn Bác sĩ", Toast.LENGTH_SHORT).show();
-            // TODO: Mở Intent đến màn hình Chọn Bác sĩ
+            // TODO: Intent -> SelectDoctorActivity
             
-            // Giả lập sau khi chọn xong
+            // Giả lập callback trả về dữ liệu
             selectedDoctorId = "Dr001";
-            updateDoctorTimeView("BS. Đoàn Hồng Lê", null);
+            selectedDoctorName = "BS. Đoàn Hồng Lê";
+            updateDoctorTimeView();
         });
 
-        // 3. Chọn Ngày & Giờ (Tham khảo image_e689a3.png)
+        // 3. Chọn Ngày & Giờ
         btnSelectTime.setOnClickListener(v -> {
             if (selectedDoctorId == null) {
                  Toast.makeText(this, "Vui lòng chọn Bác sĩ trước!", Toast.LENGTH_SHORT).show();
                  return;
             }
-            Toast.makeText(this, "Chuyển đến màn hình Chọn Thời gian cho Bác sĩ " + selectedDoctorId, Toast.LENGTH_SHORT).show();
-            // TODO: Mở Intent đến màn hình Chọn Thời gian
+            Toast.makeText(this, "Chọn giờ cho bác sĩ: " + selectedDoctorName, Toast.LENGTH_SHORT).show();
+            // TODO: Intent -> SelectTimeActivity
             
-            // Giả lập sau khi chọn xong
-            selectedTimeSlot = "14:00, 14/10/2024";
-            updateDoctorTimeView("BS. Đoàn Hồng Lê", selectedTimeSlot);
+            // Giả lập callback trả về dữ liệu
+            selectedTimeSlot = "14:00 - 14/10/2024";
+            updateDoctorTimeView();
         });
         
         // 4. Xác nhận Tạo Cuộc Hẹn
         btnConfirmAppointment.setOnClickListener(v -> {
-            if (tvSelectedPatient.getVisibility() != View.VISIBLE || selectedDoctorId == null || selectedTimeSlot == null) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin (Bệnh nhân, Bác sĩ, Thời gian)!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Đã tạo cuộc hẹn thành công cho " + tvSelectedPatient.getText().toString().substring(23), Toast.LENGTH_LONG).show();
-                // TODO: Gọi API lưu dữ liệu
-                finish(); // Đóng màn hình sau khi tạo thành công
+            // Validate dữ liệu
+            if (selectedDoctorId == null || selectedTimeSlot == null) {
+                Toast.makeText(this, "Vui lòng chọn đầy đủ Bác sĩ và Thời gian!", Toast.LENGTH_LONG).show();
+                return;
             }
+            
+            // Success Logic
+            String service = spinnerService.getSelectedItem().toString();
+            String message = String.format("Đã tạo lịch hẹn: %s\nBác sĩ: %s\nThời gian: %s", 
+                                            service, selectedDoctorName, selectedTimeSlot);
+                                            
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            
+            // TODO: Gọi API lưu vào Database
+            finish(); // Đóng màn hình
         });
     }
 
-    private void updateDoctorTimeView(String doctorName, String timeSlot) {
-        String currentText = tvSelectedDoctorTime.getText().toString();
+    private void updateDoctorTimeView() {
+        StringBuilder displayText = new StringBuilder();
         
-        // Cập nhật TextView sau khi có đủ thông tin
-        if (selectedDoctorId != null && selectedTimeSlot != null) {
-             tvSelectedDoctorTime.setText(String.format("Đã chọn: %s - %s", doctorName, timeSlot));
-             tvSelectedDoctorTime.setVisibility(View.VISIBLE);
-        } else if (selectedDoctorId != null) {
-             tvSelectedDoctorTime.setText(String.format("Đã chọn: %s", doctorName));
-             tvSelectedDoctorTime.setVisibility(View.VISIBLE);
+        if (selectedDoctorName != null && !selectedDoctorName.isEmpty()) {
+            displayText.append("Bác sĩ: ").append(selectedDoctorName);
+        }
+        
+        if (selectedTimeSlot != null) {
+            displayText.append("\nThời gian: ").append(selectedTimeSlot);
+        }
+        
+        if (displayText.length() > 0) {
+            tvSelectedDoctorTime.setText(displayText.toString());
+            tvSelectedDoctorTime.setVisibility(View.VISIBLE);
+        } else {
+            tvSelectedDoctorTime.setVisibility(View.GONE);
         }
     }
 
+    // Xử lý nút Back trên Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            finish(); // Đóng Activity thay vì gọi onBackPressed
             return true;
         }
         return super.onOptionsItemSelected(item);

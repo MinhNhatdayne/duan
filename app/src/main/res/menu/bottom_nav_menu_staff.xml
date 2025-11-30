@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Tab 1: Trang chủ (Dashboard) -->
+    <item
+            android:id="@+id/nav_staff_home"
+            android:icon="@android:drawable/ic_menu_view"
+            android:title="Tổng quan" />
+
+    <!-- Tab 2: Lịch làm việc hôm nay (Daily Schedule) -->
+    <item
+            android:id="@+id/nav_staff_schedule"
+            android:icon="@android:drawable/ic_menu_today"
+            android:title="Lịch ngày" />
+
+    <!-- Tab 3: Quản lý tất cả cuộc hẹn (Appointment Manager) -->
+    <item
+            android:id="@+id/nav_staff_appointments"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="DS Hẹn" />
+
+</menu>

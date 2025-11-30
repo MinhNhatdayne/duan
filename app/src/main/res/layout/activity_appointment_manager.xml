@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:orientation="vertical"
-        android:background="#F7F9FC"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#F7F9FC"
         tools:context=".activities_staff.AppointmentManagerActivity">
 
     <LinearLayout
+            android:id="@+id/header_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#1A73E8"
             android:padding="16dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toTopOf="parent">
 
         <TextView
                 android:id="@+id/tv_title"
@@ -29,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#1565C0"
-                android:text="+ New Appointment"
+                android:text="+ Tạo mới"
                 android:textColor="@android:color/white"
                 android:textAllCaps="false"
                 android:padding="8dp" />
@@ -38,9 +40,18 @@
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_appointments"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:padding="16dp"
             android:scrollbars="vertical"
+            app:layout_constraintTop_toBottomOf="@id/header_layout"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_staff"
             tools:listitem="@layout/item_appointment_detail"/>
 
-</LinearLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_staff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/bottom_nav_menu_staff" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

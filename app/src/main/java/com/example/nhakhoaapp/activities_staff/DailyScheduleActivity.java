@@ -1,14 +1,18 @@
 package com.example.nhakhoaapp.activities_staff;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.DailyAppointmentAdapter;
 import com.example.nhakhoaapp.models.LichHen;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,6 +25,9 @@ public class DailyScheduleActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private TextView tvCurrentDate, tvAppointmentCount;
+    
+    // 1. Khai báo BottomNavigation
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,22 +45,52 @@ public class DailyScheduleActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        // 1. Giả lập dữ liệu và hiển thị
         loadDailySchedule();
+
+        // 2. Xử lý Bottom Navigation Staff
+        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
+        bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
+    }
+
+    // 3. Highlight tab "Lịch ngày" khi mở màn hình này
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_staff_schedule);
+        }
+    }
+
+    // 4. Hàm điều hướng chung cho Staff
+    private boolean handleStaffNavigation(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_staff_home) {
+            startActivity(new Intent(this, StaffDashboardActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+
+        } else if (id == R.id.nav_staff_schedule) {
+            return true; // Đang ở màn hình này rồi
+
+        } else if (id == R.id.nav_staff_appointments) {
+            startActivity(new Intent(this, AppointmentManagerActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+        }
+        return false;
     }
 
     private void loadDailySchedule() {
         // Tạo danh sách lịch hẹn giả lập
         List<LichHen> appointments = createDummyAppointments();
 
-        // 2. Cập nhật thông tin tổng quan
+        // Cập nhật thông tin tổng quan
         updateSummary(appointments);
 
-        // 3. Thiết lập Adapter cho RecyclerView
+        // Thiết lập Adapter cho RecyclerView
         DailyAppointmentAdapter adapter = new DailyAppointmentAdapter(this, appointments);
         rvAppointments.setAdapter(adapter);
-        
-        // LinearLayoutManager đã được khai báo trong XML
     }
 
     private List<LichHen> createDummyAppointments() {

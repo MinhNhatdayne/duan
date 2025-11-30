@@ -7,11 +7,12 @@
         android:background="#F5F5F5"
         tools:context=".activities_staff.NewAppointmentActivity">
 
+    <!-- Toolbar: Đặt id chuẩn để ánh xạ trong Java -->
     <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#2196F3"
+            android:background="@color/primary_blue"
             app:title="Tạo Cuộc Hẹn Mới"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
@@ -29,6 +30,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+            <!-- Card 1: Thông tin bệnh nhân -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -55,11 +57,14 @@
                             android:id="@+id/et_patient_info"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Nhập tên hoặc SĐT để tìm kiếm bệnh nhân"
+                            android:hint="Nhập tên hoặc SĐT để tìm kiếm"
                             android:inputType="text"
                             android:padding="12dp"
-                            android:background="@drawable/rounded_edittext_background"
-                            android:drawableRight="@android:drawable/ic_menu_search"/>
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:background="@android:drawable/edit_text"
+                            android:drawableEnd="@android:drawable/ic_menu_search"/>
+                    <!-- Note: focusable=false để khi bấm vào sẽ gọi sự kiện click thay vì hiện bàn phím ngay -->
 
                     <TextView
                             android:id="@+id/tv_selected_patient"
@@ -69,11 +74,13 @@
                             android:textStyle="italic"
                             android:textColor="#4CAF50"
                             android:visibility="gone"
-                            tools:text="Bệnh nhân đã chọn: Nguyễn Thị Lan (090xxxxxxx)"/>
+                            tools:text="Bệnh nhân đã chọn: Nguyễn Thị Lan (090xxxxxxx)"
+                            tools:visibility="visible"/>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Card 2: Dịch vụ -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,7 +108,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:padding="12dp"
-                            android:background="@drawable/spinner_border"/>
+                            android:background="@android:drawable/btn_dropdown"/>
 
                     <EditText
                             android:id="@+id/et_note"
@@ -112,11 +119,12 @@
                             android:inputType="textMultiLine"
                             android:minLines="2"
                             android:padding="12dp"
-                            android:background="@drawable/rounded_edittext_background"/>
+                            android:background="@android:drawable/edit_text"/>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Card 3: Thời gian & Bác sĩ -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -143,9 +151,9 @@
                             android:id="@+id/btn_select_doctor"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Chọn Bác sĩ (Bắt buộc)"
+                            android:text="Chọn Bác sĩ"
                             android:backgroundTint="#00BCD4"
-                            android:drawableRight="@android:drawable/ic_menu_send"
+                            android:drawableEnd="@android:drawable/ic_menu_myplaces"
                             app:cornerRadius="8dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -153,20 +161,23 @@
                             android:id="@+id/btn_select_time"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Chọn Ngày và Giờ (Bắt buộc)"
+                            android:text="Chọn Ngày và Giờ"
                             android:backgroundTint="#009688"
-                            android:drawableRight="@android:drawable/ic_menu_send"
+                            android:drawableEnd="@android:drawable/ic_menu_today"
                             app:cornerRadius="8dp"/>
 
                     <TextView
                             android:id="@+id/tv_selected_doctor_time"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textStyle="italic"
-                            android:textColor="#8BC34A"
+                            android:layout_marginTop="12dp"
+                            android:textStyle="bold"
+                            android:textColor="#388E3C"
+                            android:padding="8dp"
+                            android:background="#E8F5E9"
                             android:visibility="gone"
-                            tools:text="Đã chọn: BS. Đoàn Hồng Lê - 14:00, 14/10/2024"/>
+                            tools:text="Bác sĩ: Đoàn Hồng Lê\nThời gian: 14:00 - 14/10/2024"
+                            tools:visibility="visible"/>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
