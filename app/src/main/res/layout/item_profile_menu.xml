@@ -4,37 +4,41 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp"
-        android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp">
 
     <ImageView
             android:id="@+id/img_menu_icon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@android:drawable/ic_menu_edit"
-            android:scaleType="fitCenter"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="Icon menu"
-            app:tint="@color/design_default_color_primary_dark" />
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="@color/primary_blue" />
 
     <TextView
             android:id="@+id/tv_menu_title"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Tên menu"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
 
+    <!-- Mũi tên chỉ sang phải (Dùng tạm icon play tint màu xám nhạt) -->
     <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_media_next"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:contentDescription="Mũi tên"
-            app:tint="@android:color/darker_gray" />
+            android:src="@android:drawable/ic_media_play"
+            android:rotation="0"
+            app:tint="#BBBBBB" />
+    <!-- Lưu ý: Nếu có icon chevron_right thì thay vào đây sẽ đẹp hơn -->
 
 </LinearLayout>

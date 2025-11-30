@@ -4,26 +4,35 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingVertical="8dp"
-        android:gravity="center_vertical">
+        android:paddingVertical="10dp">
 
-    <ImageView
-            android:id="@+id/img_detail_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_call"
-            android:scaleType="fitCenter"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="Icon chi tiết"
-            app:tint="@android:color/darker_gray" />
+    <!-- Icon nền tròn nhạt -->
+    <LinearLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_icon"
+            android:backgroundTint="#F0F4FF"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+        <ImageView
+                android:id="@+id/img_detail_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Icon chi tiết"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_menu_call"
+                app:tint="@color/primary_blue" />
+    </LinearLayout>
 
     <TextView
             android:id="@+id/tv_detail_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Giá trị chi tiết"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"/>
+            android:textColor="#333333"
+            android:textSize="15sp" />
 
 </LinearLayout>

@@ -1,60 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingVertical="12dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
         android:clickable="true"
         android:focusable="true"
-        android:background="?android:attr/selectableItemBackground">
+        android:foreground="?android:attr/selectableItemBackground">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:padding="16dp">
 
+        <!-- Icon loại thông báo (Ví dụ icon cái chuông hoặc logo) -->
         <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:id="@+id/icon_container"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="#F0F4FF"
+                android:gravity="center"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                    android:id="@+id/tv_notification_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Nội dung thông báo (có thể dài)"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/black"
-                    android:maxLines="4"
-                    android:ellipsize="end"/>
-
-            <TextView
-                    android:id="@+id/tv_notification_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Thời gian"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginTop="4dp"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="@color/primary_blue"/>
         </LinearLayout>
 
+        <!-- Nội dung thông báo -->
+        <TextView
+                android:id="@+id/tv_notification_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:text="Nội dung thông báo hiển thị ở đây. Ví dụ: Lịch hẹn của bạn đã được xác nhận thành công."
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:lineSpacingExtra="2dp"
+                app:layout_constraintEnd_toStartOf="@id/img_status_dot"
+                app:layout_constraintStart_toEndOf="@id/icon_container"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Thời gian -->
+        <TextView
+                android:id="@+id/tv_notification_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="2 giờ trước"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@id/tv_notification_content"
+                app:layout_constraintTop_toBottomOf="@id/tv_notification_content" />
+
+        <!-- Chấm đỏ (Trạng thái chưa đọc) -->
         <ImageView
                 android:id="@+id/img_status_dot"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:src="@drawable/ic_hot"
-                android:contentDescription="Trạng thái thông báo"
-                android:layout_gravity="top"/>
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:src="@drawable/bg_notification_dot"
+                android:contentDescription="Chưa đọc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_notification_content" />
 
-    </LinearLayout>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EEEEEE"
-            android:layout_marginTop="12dp"/>
-
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

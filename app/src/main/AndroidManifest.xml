@@ -21,7 +21,7 @@
                 android:name=".activities_staff.DailyScheduleActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities_staff.StaffDashboardActivity"
+                android:name=".activities_customer.DashboardActivity"
                 android:exported="false" />
         <activity
                 android:name=".activities_customer.NotificationsActivity"
@@ -48,7 +48,7 @@
                 android:name=".activities.RegisterActivity"
                 android:exported="false" />
         <activity
-                android:name=".activities_customer.DashboardActivity"
+                android:name=".activities_staff.StaffDashboardActivity"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
