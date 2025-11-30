@@ -2,11 +2,13 @@ package com.example.nhakhoaapp.activities_customer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem; // Thêm
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull; // Thêm
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -18,6 +20,7 @@ import com.example.nhakhoaapp.adapters.DateSlotAdapter;
 import com.example.nhakhoaapp.adapters.TimeSlotAdapter;
 import com.example.nhakhoaapp.models_adapter.DateSlot;
 import com.example.nhakhoaapp.models_adapter.TimeSlot;
+import com.google.android.material.bottomnavigation.BottomNavigationView; // Thêm
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,9 @@ public class SelectTimeActivity extends AppCompatActivity {
 
     private String serviceName;
     private String doctorName;
+
+    // Khai báo BottomNavigation
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,45 @@ public class SelectTimeActivity extends AppCompatActivity {
             intent.putExtra("SELECTED_TIME", selectedTimeSlot.getTime());
             startActivity(intent);
         });
+
+        // --- XỬ LÝ BOTTOM NAVIGATION ---
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            handleBottomNav(item);
+            return true;
+        });
+    }
+
+    // Highlight tab Booking khi vào màn hình này
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_booking);
+        }
+    }
+
+    // Hàm điều hướng BottomNavigation
+    private void handleBottomNav(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            startActivity(new Intent(this, DashboardActivity.class));
+            return;
+
+        } else if (id == R.id.nav_booking) {
+            // Đang ở trong luồng booking, quay về BookingActivity gốc
+            startActivity(new Intent(this, BookingActivity.class));
+            return;
+
+        } else if (id == R.id.nav_notifications) {
+            startActivity(new Intent(this, NotificationsActivity.class));
+            return;
+
+        } else if (id == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            return;
+        }
     }
 
     private void setupDateRecyclerView() {
