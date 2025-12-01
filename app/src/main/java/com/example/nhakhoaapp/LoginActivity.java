@@ -136,7 +136,6 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(this,
                 "Đăng nhập tạm thời (fake) thành công",
                 Toast.LENGTH_SHORT).show();
-
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish(); // đóng màn Login
