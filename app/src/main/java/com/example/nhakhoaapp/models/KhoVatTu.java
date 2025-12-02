@@ -18,3 +18,4 @@ public class KhoVatTu {
         this.loai = loai;
     }
 }
+//kho vật tư mình không còn sài nữa
