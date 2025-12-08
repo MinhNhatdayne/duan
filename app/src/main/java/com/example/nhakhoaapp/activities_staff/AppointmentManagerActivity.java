@@ -14,13 +14,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.SingleAppointmentAdapter;
+import com.example.nhakhoaapp.api.ApiService;
+import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.models.LichHen;
 import com.example.nhakhoaapp.models_adapter.AppointmentHeader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
-// import java.util.Date; // KHÔNG CẦN DÙNG Date NỮA
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AppointmentManagerActivity extends AppCompatActivity {
 
@@ -28,6 +33,9 @@ public class AppointmentManagerActivity extends AppCompatActivity {
     private Button btnNewAppointment;
     private TextView tvTitle;
     private BottomNavigationView bottomNavigationView;
+
+    // Khai báo Retrofit ApiService
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,10 @@ public class AppointmentManagerActivity extends AppCompatActivity {
 
         tvTitle.setText("Quản lý cuộc hẹn");
 
+        // Khởi tạo ApiService: Sử dụng ApiClient
+        apiService = ApiClient.getApiService();
+
+        // Thay thế loadAppointments() cũ bằng logic gọi API
         loadAppointments();
 
         btnNewAppointment.setOnClickListener(v -> {
@@ -81,28 +93,61 @@ public class AppointmentManagerActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Thực hiện gọi API để tải danh sách lịch hẹn
+     */
     private void loadAppointments() {
-        List<Object> combinedList = createCombinedAppointmentList();
-        SingleAppointmentAdapter adapter = new SingleAppointmentAdapter(this, combinedList);
+        // Khởi tạo RecyclerView trước để tránh lỗi NullPointer nếu API gọi thất bại
         rvAppointments.setLayoutManager(new LinearLayoutManager(this));
+
+        apiService.getAllLichHen().enqueue(new Callback<List<LichHen>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<LichHen>> call, @NonNull Response<List<LichHen>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<LichHen> fetchedAppointments = response.body();
+
+                    // Xử lý dữ liệu và hiển thị lên RecyclerView
+                    populateRecyclerView(fetchedAppointments);
+
+                    Toast.makeText(AppointmentManagerActivity.this, "Tải danh sách lịch hẹn thành công!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi tải dữ liệu: " + response.code(), Toast.LENGTH_LONG).show();
+                    populateRecyclerView(new ArrayList<>()); // Hiển thị danh sách rỗng
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<LichHen>> call, @NonNull Throwable t) {
+                Toast.makeText(AppointmentManagerActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                populateRecyclerView(new ArrayList<>()); // Hiển thị danh sách rỗng
+            }
+        });
+    }
+
+    /**
+     * Xử lý danh sách LichHen và đưa vào Adapter (bao gồm cả Header)
+     */
+    private void populateRecyclerView(List<LichHen> fetchedAppointments) {
+        List<Object> combinedList = createCombinedListWithHeaders(fetchedAppointments);
+        SingleAppointmentAdapter adapter = new SingleAppointmentAdapter(this, combinedList);
         rvAppointments.setAdapter(adapter);
     }
 
-    private List<Object> createCombinedAppointmentList() {
+    /**
+     * Chuyển đổi List<LichHen> thành List<Object> có AppointmentHeader
+     * NOTE: Logic nhóm theo ngày cần được phát triển thêm để xử lý chính xác hơn
+     */
+    private List<Object> createCombinedListWithHeaders(List<LichHen> appointments) {
         List<Object> list = new ArrayList<>();
-        // Giả lập thoi_gian_hen bằng String ISO Date để khớp với model mới
-        String dummyDateIso = "2025-10-10T10:00:00.000Z";
 
-        list.add(new AppointmentHeader("Hôm nay, 10/10/2024"));
+        if (appointments == null || appointments.isEmpty()) {
+            list.add(new AppointmentHeader("Không tìm thấy lịch hẹn nào."));
+            return list;
+        }
 
-        // Sử dụng constructor mới:
-        // LichHen(_id: String, id_benh_nhan: String, id_bac_si: String, thoi_gian_hen: String, ly_do_kham: String, trang_thai: String, ten_benh_nhan: String, gio_kham: String)
-        list.add(new LichHen("6570c915f013d20a02b1c3e1", "6570c915f013d20a02b1c001", "6570c915f013d20a02b1c101", dummyDateIso, "Khám định kỳ", "Đang chờ", "Nguyễn Thị Lan", "10:00"));
-        list.add(new LichHen("6570c915f013d20a02b1c3e2", "6570c915f013d20a02b1c002", "6570c915f013d20a02b1c101", dummyDateIso, "Chỉnh nha", "Đã khám", "Lê Quốc Huy", "11:00"));
-
-        list.add(new AppointmentHeader("Ngày mai, 11/10/2024"));
-
-        list.add(new LichHen("6570c915f013d20a02b1c3e4", "6570c915f013d20a02b1c004", "6570c915f013d20a02b1c102", dummyDateIso, "Hẹn tái khám", "Chưa khám", "Phạm Kim Chi", "16:00"));
+        // Tạm thời, thêm một header chung và tất cả các mục lịch hẹn
+        list.add(new AppointmentHeader("Tất cả Lịch hẹn Đã Tải (" + appointments.size() + ")"));
+        list.addAll(appointments);
 
         return list;
     }

@@ -4,36 +4,47 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager; // Thêm import LayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.DailyAppointmentAdapter;
+import com.example.nhakhoaapp.api.ApiClient;
+import com.example.nhakhoaapp.api.ApiService;
 import com.example.nhakhoaapp.models.LichHen;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DailyScheduleActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private TextView tvCurrentDate, tvAppointmentCount;
 
-    // 1. Khai báo BottomNavigation
     private BottomNavigationView bottomNavigationView;
+
+    // Khai báo API Service
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_schedule);
+
+        // Khởi tạo API Service
+        apiService = ApiClient.getApiService();
 
         // Ánh xạ View
         rvAppointments = findViewById(R.id.rv_daily_appointments);
@@ -46,23 +57,30 @@ public class DailyScheduleActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        loadDailySchedule();
+        // Thiết lập RecyclerView và hiển thị ngày tháng
+        setupRecyclerView();
+        updateDateDisplay();
 
-        // 2. Xử lý Bottom Navigation Staff
+        // Gọi API để tải dữ liệu lịch hẹn thực tế
+        fetchDailySchedule();
+
+        // Xử lý Bottom Navigation Staff
         bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
         bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
     }
 
-    // 3. Highlight tab "Lịch ngày" khi mở màn hình này
+    // Highlight tab "Lịch ngày" khi mở màn hình này
     @Override
     protected void onResume() {
         super.onResume();
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_staff_schedule);
         }
+        // Gọi lại API khi quay lại màn hình để đảm bảo dữ liệu mới nhất
+        fetchDailySchedule();
     }
 
-    // 4. Hàm điều hướng chung cho Staff
+    // Hàm điều hướng chung cho Staff
     private boolean handleStaffNavigation(@NonNull MenuItem item) {
         int id = item.getItemId();
 
@@ -82,49 +100,70 @@ public class DailyScheduleActivity extends AppCompatActivity {
         return false;
     }
 
-    private void loadDailySchedule() {
-        // Tạo danh sách lịch hẹn giả lập
-        List<LichHen> appointments = createDummyAppointments();
-
-        // Cập nhật thông tin tổng quan
-        updateSummary(appointments);
-
-        // Thiết lập Layout Manager (đã thêm)
+    // Hàm thiết lập RecyclerView ban đầu
+    private void setupRecyclerView() {
         rvAppointments.setLayoutManager(new LinearLayoutManager(this));
-
-        // Thiết lập Adapter cho RecyclerView
-        DailyAppointmentAdapter adapter = new DailyAppointmentAdapter(this, appointments);
+        // Khởi tạo Adapter với danh sách rỗng
+        DailyAppointmentAdapter adapter = new DailyAppointmentAdapter(this, new ArrayList<>());
         rvAppointments.setAdapter(adapter);
     }
 
-    private List<LichHen> createDummyAppointments() {
-        List<LichHen> list = new ArrayList<>();
+    /**
+     * Hàm gọi API để lấy danh sách lịch hẹn trong ngày
+     */
+    private void fetchDailySchedule() {
+        // Cập nhật trạng thái loading
+        tvAppointmentCount.setText("Đang tải lịch hẹn...");
 
-        // Sử dụng String (ISO Date string giả định) thay vì java.util.Date
-        String dummyDateIso = "2025-10-10T00:00:00.000Z";
+        apiService.getTodayAppointments().enqueue(new Callback<List<LichHen>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<LichHen>> call, @NonNull Response<List<LichHen>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<LichHen> appointments = response.body();
 
-        // Sửa lỗi: Sử dụng constructor mới với String ID và String Date
-        // LichHen(_id: String, id_benh_nhan: String, id_bac_si: String, thoi_gian_hen: String, ly_do_kham: String, trang_thai: String, ten_benh_nhan: String, gio_kham: String)
-        list.add(new LichHen("6570c915f013d20a02b1c3e1", "6570c915f013d20a02b1c001", "6570c915f013d20a02b1c101", dummyDateIso, "Khám định kỳ", "Đã khám", "Nguyễn Mạnh Toàn", "08:30"));
-        list.add(new LichHen("6570c915f013d20a02b1c3e2", "6570c915f013d20a02b1c002", "6570c915f013d20a02b1c101", dummyDateIso, "Điều trị tủy răng", "Đang chờ", "Trần Thị Lan", "09:30"));
-        list.add(new LichHen("6570c915f013d20a02b1c3e3", "6570c915f013d20a02b1c003", "6570c915f013d20a02b1c102", dummyDateIso, "Nhổ răng khôn", "Đang chờ", "Lê Văn Hùng", "10:30"));
-        list.add(new LichHen("6570c915f013d20a02b1c3e4", "6570c915f013d20a02b1c004", "6570c915f013d20a02b1c102", dummyDateIso, "Tái khám chỉnh nha", "Chưa khám", "Phạm Thị Thúy", "14:00"));
-        list.add(new LichHen("6570c915f013d20a02b1c3e5", "6570c915f013d20a02b1c005", "6570c915f013d20a02b1c103", dummyDateIso, "Khám tổng quát", "Dời lịch", "Vũ Minh Đức", "15:30"));
+                    // Cập nhật Adapter (sử dụng method updateData đã thêm ở file DailyAppointmentAdapter)
+                    DailyAppointmentAdapter adapter = (DailyAppointmentAdapter) rvAppointments.getAdapter();
+                    if (adapter != null) {
+                        adapter.updateData(appointments);
+                    }
 
-        return list;
+                    // Cập nhật thông tin tổng quan
+                    updateSummary(appointments);
+
+                } else {
+                    Toast.makeText(DailyScheduleActivity.this, "Lỗi khi tải lịch hẹn: " + response.code(), Toast.LENGTH_SHORT).show();
+                    updateSummary(new ArrayList<>()); // Hiển thị 0
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<LichHen>> call, @NonNull Throwable t) {
+                Toast.makeText(DailyScheduleActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                updateSummary(new ArrayList<>()); // Hiển thị 0
+            }
+        });
     }
 
-    private void updateSummary(List<LichHen> appointments) {
-        // Vẫn giữ lại Date và Calendar vì chúng dùng để hiển thị ngày tháng hiện tại (local display)
+    // Hàm cập nhật hiển thị ngày tháng
+    private void updateDateDisplay() {
+        // Định dạng ngày tháng bằng tiếng Việt
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         String today = dateFormat.format(Calendar.getInstance().getTime());
-
         tvCurrentDate.setText(String.format("Hôm nay: %s", today));
+    }
 
+    /**
+     * Hàm cập nhật thông tin tổng quan số lượng lịch hẹn.
+     * @param appointments Danh sách lịch hẹn đã tải từ API.
+     */
+    private void updateSummary(List<LichHen> appointments) {
         int total = appointments.size();
-        // Sử dụng stream() để đếm các cuộc hẹn đang chờ
-        long pending = appointments.stream().filter(l -> "Đang chờ".equals(l.getTrang_thai())).count();
 
-        tvAppointmentCount.setText(String.format("Tổng số lịch hẹn: %d (Đang chờ: %d)", total, pending));
+        // Đếm số lượng lịch hẹn có trạng thái "Chờ khám"
+        long pending = appointments.stream()
+                .filter(l -> "Chờ khám".equals(l.getTrang_thai()))
+                .count();
+
+        tvAppointmentCount.setText(String.format("Tổng số lịch hẹn: %d (Chờ khám: %d)", total, pending));
     }
 }

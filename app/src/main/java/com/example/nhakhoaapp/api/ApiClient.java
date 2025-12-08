@@ -7,10 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    // ⚠ Đổi BASE_URL này cho đúng:
-    // - Emulator: http://10.0.2.2:3000/
-    // - Máy thật: http://192.168.xxx.xxx:3000/
-    private static final String BASE_URL = "http://10.0.2.2:3000/";
+    private static final String BASE_URL = "https://test-gh9i.onrender.com/";
 
     private static Retrofit retrofit;
 
@@ -32,5 +29,10 @@ public class ApiClient {
                     .build();
         }
         return retrofit;
+    }
+    
+    // ✅ THÊM PHƯƠNG THỨC NÀY: Dùng để tạo và trả về đối tượng ApiService
+    public static ApiService getApiService() {
+        return getClient().create(ApiService.class);
     }
 }

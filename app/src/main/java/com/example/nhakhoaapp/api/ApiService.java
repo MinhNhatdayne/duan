@@ -11,6 +11,7 @@ import com.example.nhakhoaapp.models.ChiTietHoaDon;
 import com.example.nhakhoaapp.models.BaoHiem;
 import com.example.nhakhoaapp.models.DanhMucDichVu;
 import com.example.nhakhoaapp.models.ChiTietDichVu;
+import com.example.nhakhoaapp.models.dto.AppointmentStats;
 
 import java.util.List;
 
@@ -149,6 +150,15 @@ public interface ApiService {
     @DELETE("LichHen/{id}")
     Call<Void> deleteLichHen(@Path("id") String id);
 
+    // ⬇️ API BỔ SUNG CHO LỊCH HẸN HÔM NAY ⬇️
+    @GET("LichHen/today/list") // <<< ĐÃ THAY ĐỔI TẠI ĐÂY
+    Call<List<LichHen>> getTodayAppointments();
+
+    // ⬇️ API BỔ SUNG CHO THỐNG KÊ DASHBOARD ⬇️
+    @GET("LichHen/stats/today")
+    Call<AppointmentStats> getTodayAppointmentStats();
+    // ⬆️ API BỔ SUNG CHO THỐNG KÊ DASHBOARD ⬆️
+
 
     // ===================== HÓA ĐƠN =====================
 
@@ -253,5 +263,4 @@ public interface ApiService {
 
     @DELETE("ChiTietDichVu/{id}")
     Call<Void> deleteChiTietDichVu(@Path("id") String id);
-    //api đổ dữ liệu đã xg mai xem lại model và xử lý dữ liệu
 }

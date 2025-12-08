@@ -1,29 +1,30 @@
 package com.example.nhakhoaapp.models;
 
-// KHÔNG CẦN import java.util.Date; nữa
+// KHÔNG CẦN import java.util.Date;
 public class LichHen {
-    // MongoDB Fields
-    private String _id; // Thay thế id_lichhen (int)
+    // MongoDB Fields (Response)
+    private String _id;
     private String createdAt;
     private String updatedAt;
 
-    // Foreign Keys (String ObjectId)
-    private String id_benh_nhan; // Thay thế id_benhnhan (int)
-    private String id_bac_si; // Thay thế id_nhanvien_phu_trach (int)
+    // Foreign Keys (String ObjectId) (Request & Response)
+    private String id_benh_nhan; // Đặt tên khớp với backend (snake_case)
+    private String id_bac_si;    // Đặt tên khớp với backend (snake_case)
 
-    // Custom Fields
-    private String thoi_gian_hen; // Date -> String (ISO Date String từ MongoDB)
+    // Custom Fields (Request & Response)
+    private String thoi_gian_hen; // String (ISO Date String từ MongoDB)
     private String ly_do_kham;
     private String trang_thai;
 
-    // Fields Dành cho UI (có thể được populate từ API)
+    // Fields Dành cho UI (Response/Populate)
     private String ten_benh_nhan;
+    private String ten_bac_si; // <--- ĐÃ THÊM: Tên bác sĩ
     private String gio_kham;
 
     public LichHen() {}
 
-    // Constructor mới sử dụng String cho ID và thời gian
-    public LichHen(String _id, String id_benh_nhan, String id_bac_si, String thoi_gian_hen, String ly_do_kham, String trang_thai, String ten_benh_nhan, String gio_kham) {
+    // Constructor để tạo dữ liệu giả lập/test
+    public LichHen(String _id, String id_benh_nhan, String id_bac_si, String thoi_gian_hen, String ly_do_kham, String trang_thai, String ten_benh_nhan, String ten_bac_si, String gio_kham) {
         this._id = _id;
         this.id_benh_nhan = id_benh_nhan;
         this.id_bac_si = id_bac_si;
@@ -31,11 +32,11 @@ public class LichHen {
         this.ly_do_kham = ly_do_kham;
         this.trang_thai = trang_thai;
         this.ten_benh_nhan = ten_benh_nhan;
+        this.ten_bac_si = ten_bac_si; // Thêm vào constructor
         this.gio_kham = gio_kham;
     }
 
-    // Getters & Setters (Cần update các kiểu dữ liệu cũ)
-
+    // Getters & Setters
     public String get_id() { return _id; }
     public void set_id(String _id) { this._id = _id; }
 
@@ -56,6 +57,10 @@ public class LichHen {
 
     public String getTen_benh_nhan() { return ten_benh_nhan; }
     public void setTen_benh_nhan(String ten_benh_nhan) { this.ten_benh_nhan = ten_benh_nhan; }
+
+    // Getter & Setter mới cho tên bác sĩ
+    public String getTen_bac_si() { return ten_bac_si; }
+    public void setTen_bac_si(String ten_bac_si) { this.ten_bac_si = ten_bac_si; }
 
     public String getGio_kham() { return gio_kham; }
     public void setGio_kham(String gio_kham) { this.gio_kham = gio_kham; }

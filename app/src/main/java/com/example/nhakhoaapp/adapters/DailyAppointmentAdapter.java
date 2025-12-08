@@ -29,6 +29,16 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
         this.context = context;
         this.appointmentList = appointmentList;
     }
+    
+    /**
+     * Cập nhật danh sách lịch hẹn mới và refresh RecyclerView
+     * (Cần thiết cho việc tải dữ liệu từ API)
+     */
+    public void updateData(List<LichHen> newAppointmentList) {
+        this.appointmentList.clear();
+        this.appointmentList.addAll(newAppointmentList);
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -45,10 +55,13 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
         holder.tvTime.setText(lichHen.getGio_kham());
         holder.tvPatientName.setText(lichHen.getTen_benh_nhan());
         holder.tvServiceContent.setText(lichHen.getLy_do_kham()); // Hoặc getTen_dich_vu()
+        
+        // Giả định tên bác sĩ (Nếu backend populate, có thể dùng getTen_bac_si())
+        // Hiện tại: Hiển thị trạng thái/chức vụ bác sĩ
+        // Nếu bạn muốn hiển thị tên bác sĩ, bạn cần đảm bảo API trả về.
+        holder.tvDoctorName.setText("BS. Phụ Trách"); 
+        
         holder.tvStatus.setText(lichHen.getTrang_thai());
-
-        // Giả lập tên bác sĩ (Nếu model có thì dùng lichHen.getTen_bac_si())
-        holder.tvDoctorName.setText("BS. Phụ Trách");
 
         // 2. Xử lý màu sắc trạng thái (Badge Style)
         applyStatusStyle(holder, lichHen.getTrang_thai());
@@ -71,16 +84,20 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
             String title = item.getTitle().toString();
             switch (title) {
                 case "Xác nhận Đã khám":
+                    // TODO: Gọi API để cập nhật trạng thái trên server
                     lichHen.setTrang_thai("Đã khám");
                     notifyItemChanged(position);
                     Toast.makeText(context, "Đã cập nhật trạng thái: Đã khám", Toast.LENGTH_SHORT).show();
                     return true;
                 case "Dời lịch hẹn":
                     Toast.makeText(context, "Chức năng dời lịch cho: " + lichHen.getTen_benh_nhan(), Toast.LENGTH_SHORT).show();
+                    // TODO: Mở màn hình/dialog dời lịch
                     return true;
                 case "Hủy hẹn":
+                    // TODO: Gọi API để cập nhật trạng thái trên server
                     lichHen.setTrang_thai("Hủy");
                     notifyItemChanged(position);
+                    Toast.makeText(context, "Đã cập nhật trạng thái: Hủy", Toast.LENGTH_SHORT).show();
                     return true;
             }
             return false;
@@ -92,7 +109,10 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
      * Hàm set màu nền và màu chữ cho Badge trạng thái
      */
     private void applyStatusStyle(ViewHolder holder, String status) {
-        switch (status) {
+        // Chuẩn hóa tên trạng thái (Dựa trên LichHen.js: "Chờ khám", "Đã khám", "Hủy", "Dời lịch")
+        String normalizedStatus = status != null ? status.trim() : "";
+        
+        switch (normalizedStatus) {
             case "Đã khám":
             case "Hoàn thành":
                 // Nền Xanh lá nhạt - Chữ Xanh lá đậm
@@ -100,15 +120,16 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
                 holder.tvStatus.setTextColor(Color.parseColor("#2E7D32"));
                 break;
 
-            case "Đang chờ":
+            case "Chờ khám": // Đây là trạng thái mặc định từ MongoDB
             case "Sắp tới":
+            case "Đang chờ":
                 // Nền Cam nhạt - Chữ Cam đậm
                 holder.cardStatusBadge.setCardBackgroundColor(Color.parseColor("#FFF3E0"));
                 holder.tvStatus.setTextColor(Color.parseColor("#EF6C00"));
                 break;
 
-            case "Chưa khám":
             case "Hủy":
+            case "Chưa khám": // Có thể coi là Hủy nếu đã quá giờ
                 // Nền Đỏ nhạt - Chữ Đỏ đậm
                 holder.cardStatusBadge.setCardBackgroundColor(Color.parseColor("#FFEBEE"));
                 holder.tvStatus.setTextColor(Color.parseColor("#C62828"));
@@ -140,7 +161,7 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Ánh xạ đúng với ID trong item_appointment_staff.xml mới
+            // Ánh xạ đúng với ID trong item_appointment_staff.xml
             tvTime = itemView.findViewById(R.id.tv_time);
             tvPatientName = itemView.findViewById(R.id.tv_patient_name);
             tvServiceContent = itemView.findViewById(R.id.tv_service_content);
