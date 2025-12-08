@@ -49,7 +49,7 @@
                 android:name=".activities.RegisterActivity"
                 android:exported="false" />
         <activity
-                android:name=".testbenhnhan"
+                android:name=".activities_staff.StaffDashboardActivity"
                 android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

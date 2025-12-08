@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager; // Thêm import LayoutManager
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
@@ -25,7 +26,7 @@ public class DailyScheduleActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private TextView tvCurrentDate, tvAppointmentCount;
-    
+
     // 1. Khai báo BottomNavigation
     private BottomNavigationView bottomNavigationView;
 
@@ -44,7 +45,7 @@ public class DailyScheduleActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Lịch Khám Hôm Nay");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        
+
         loadDailySchedule();
 
         // 2. Xử lý Bottom Navigation Staff
@@ -88,6 +89,9 @@ public class DailyScheduleActivity extends AppCompatActivity {
         // Cập nhật thông tin tổng quan
         updateSummary(appointments);
 
+        // Thiết lập Layout Manager (đã thêm)
+        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
+
         // Thiết lập Adapter cho RecyclerView
         DailyAppointmentAdapter adapter = new DailyAppointmentAdapter(this, appointments);
         rvAppointments.setAdapter(adapter);
@@ -95,27 +99,32 @@ public class DailyScheduleActivity extends AppCompatActivity {
 
     private List<LichHen> createDummyAppointments() {
         List<LichHen> list = new ArrayList<>();
-        Date now = Calendar.getInstance().getTime();
 
-        // Giả lập 5 lịch hẹn
-        list.add(new LichHen(101, 1, 1, now, "Khám định kỳ", "Đã khám", "Nguyễn Mạnh Toàn", "08:30"));
-        list.add(new LichHen(102, 2, 1, now, "Điều trị tủy răng", "Đang chờ", "Trần Thị Lan", "09:30"));
-        list.add(new LichHen(103, 3, 1, now, "Nhổ răng khôn", "Đang chờ", "Lê Văn Hùng", "10:30"));
-        list.add(new LichHen(104, 4, 1, now, "Tái khám chỉnh nha", "Chưa khám", "Phạm Thị Thúy", "14:00"));
-        list.add(new LichHen(105, 5, 1, now, "Khám tổng quát", "Dời lịch", "Vũ Minh Đức", "15:30"));
+        // Sử dụng String (ISO Date string giả định) thay vì java.util.Date
+        String dummyDateIso = "2025-10-10T00:00:00.000Z";
+
+        // Sửa lỗi: Sử dụng constructor mới với String ID và String Date
+        // LichHen(_id: String, id_benh_nhan: String, id_bac_si: String, thoi_gian_hen: String, ly_do_kham: String, trang_thai: String, ten_benh_nhan: String, gio_kham: String)
+        list.add(new LichHen("6570c915f013d20a02b1c3e1", "6570c915f013d20a02b1c001", "6570c915f013d20a02b1c101", dummyDateIso, "Khám định kỳ", "Đã khám", "Nguyễn Mạnh Toàn", "08:30"));
+        list.add(new LichHen("6570c915f013d20a02b1c3e2", "6570c915f013d20a02b1c002", "6570c915f013d20a02b1c101", dummyDateIso, "Điều trị tủy răng", "Đang chờ", "Trần Thị Lan", "09:30"));
+        list.add(new LichHen("6570c915f013d20a02b1c3e3", "6570c915f013d20a02b1c003", "6570c915f013d20a02b1c102", dummyDateIso, "Nhổ răng khôn", "Đang chờ", "Lê Văn Hùng", "10:30"));
+        list.add(new LichHen("6570c915f013d20a02b1c3e4", "6570c915f013d20a02b1c004", "6570c915f013d20a02b1c102", dummyDateIso, "Tái khám chỉnh nha", "Chưa khám", "Phạm Thị Thúy", "14:00"));
+        list.add(new LichHen("6570c915f013d20a02b1c3e5", "6570c915f013d20a02b1c005", "6570c915f013d20a02b1c103", dummyDateIso, "Khám tổng quát", "Dời lịch", "Vũ Minh Đức", "15:30"));
 
         return list;
     }
-    
+
     private void updateSummary(List<LichHen> appointments) {
+        // Vẫn giữ lại Date và Calendar vì chúng dùng để hiển thị ngày tháng hiện tại (local display)
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         String today = dateFormat.format(Calendar.getInstance().getTime());
-        
+
         tvCurrentDate.setText(String.format("Hôm nay: %s", today));
 
         int total = appointments.size();
-        long pending = appointments.stream().filter(l -> l.getTrang_thai().equals("Đang chờ")).count();
-        
+        // Sử dụng stream() để đếm các cuộc hẹn đang chờ
+        long pending = appointments.stream().filter(l -> "Đang chờ".equals(l.getTrang_thai())).count();
+
         tvAppointmentCount.setText(String.format("Tổng số lịch hẹn: %d (Đang chờ: %d)", total, pending));
     }
 }

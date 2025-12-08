@@ -19,8 +19,8 @@ import com.example.nhakhoaapp.models_adapter.AppointmentHeader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+// import java.util.Date; // KHÔNG CẦN DÙNG Date NỮA
 
 public class AppointmentManagerActivity extends AppCompatActivity {
 
@@ -44,8 +44,8 @@ public class AppointmentManagerActivity extends AppCompatActivity {
 
         btnNewAppointment.setOnClickListener(v -> {
             // Chuyển sang NewAppointmentActivity (Không có BottomNav)
-             Intent intent = new Intent(AppointmentManagerActivity.this, NewAppointmentActivity.class);
-             startActivity(intent);
+            Intent intent = new Intent(AppointmentManagerActivity.this, NewAppointmentActivity.class);
+            startActivity(intent);
         });
 
         // Xử lý Navigation Staff
@@ -90,12 +90,20 @@ public class AppointmentManagerActivity extends AppCompatActivity {
 
     private List<Object> createCombinedAppointmentList() {
         List<Object> list = new ArrayList<>();
-        Date dummyDate = new Date();
+        // Giả lập thoi_gian_hen bằng String ISO Date để khớp với model mới
+        String dummyDateIso = "2025-10-10T10:00:00.000Z";
+
         list.add(new AppointmentHeader("Hôm nay, 10/10/2024"));
-        list.add(new LichHen(1, 101, 1, dummyDate, "Khám định kỳ", "Đang chờ", "Nguyễn Thị Lan", "10:00"));
-        list.add(new LichHen(2, 102, 1, dummyDate, "Chỉnh nha", "Đã khám", "Lê Quốc Huy", "11:00"));
+
+        // Sử dụng constructor mới:
+        // LichHen(_id: String, id_benh_nhan: String, id_bac_si: String, thoi_gian_hen: String, ly_do_kham: String, trang_thai: String, ten_benh_nhan: String, gio_kham: String)
+        list.add(new LichHen("6570c915f013d20a02b1c3e1", "6570c915f013d20a02b1c001", "6570c915f013d20a02b1c101", dummyDateIso, "Khám định kỳ", "Đang chờ", "Nguyễn Thị Lan", "10:00"));
+        list.add(new LichHen("6570c915f013d20a02b1c3e2", "6570c915f013d20a02b1c002", "6570c915f013d20a02b1c101", dummyDateIso, "Chỉnh nha", "Đã khám", "Lê Quốc Huy", "11:00"));
+
         list.add(new AppointmentHeader("Ngày mai, 11/10/2024"));
-        list.add(new LichHen(4, 104, 2, dummyDate, "Hẹn tái khám", "Chưa khám", "Phạm Kim Chi", "16:00"));
+
+        list.add(new LichHen("6570c915f013d20a02b1c3e4", "6570c915f013d20a02b1c004", "6570c915f013d20a02b1c102", dummyDateIso, "Hẹn tái khám", "Chưa khám", "Phạm Kim Chi", "16:00"));
+
         return list;
     }
 }
