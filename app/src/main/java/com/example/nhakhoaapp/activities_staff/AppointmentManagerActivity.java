@@ -14,13 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.SingleAppointmentAdapter;
-import com.example.nhakhoaapp.api.ApiService;
 import com.example.nhakhoaapp.api.ApiClient;
-import com.example.nhakhoaapp.models.LichHen;
+import com.example.nhakhoaapp.api.ApiService;
+import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Model Response
 import com.example.nhakhoaapp.models_adapter.AppointmentHeader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -34,7 +35,6 @@ public class AppointmentManagerActivity extends AppCompatActivity {
     private TextView tvTitle;
     private BottomNavigationView bottomNavigationView;
 
-    // Khai báo Retrofit ApiService
     private ApiService apiService;
 
     @Override
@@ -42,111 +42,114 @@ public class AppointmentManagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appointment_manager);
 
+        // Ánh xạ Views
         rvAppointments = findViewById(R.id.recycler_appointments);
         btnNewAppointment = findViewById(R.id.btn_new_appointment);
         tvTitle = findViewById(R.id.tv_title);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
 
         tvTitle.setText("Quản lý cuộc hẹn");
 
-        // Khởi tạo ApiService: Sử dụng ApiClient
+        // Khởi tạo API & RecyclerView
         apiService = ApiClient.getApiService();
+        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
 
-        // Thay thế loadAppointments() cũ bằng logic gọi API
+        // 1. [FIX LỖI NAV] Cài đặt trạng thái BottomNav TRƯỚC KHI gán listener
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_staff_appointments);
+            bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
+        }
+
+        // Tải dữ liệu lần đầu
         loadAppointments();
 
         btnNewAppointment.setOnClickListener(v -> {
-            // Chuyển sang NewAppointmentActivity (Không có BottomNav)
             Intent intent = new Intent(AppointmentManagerActivity.this, NewAppointmentActivity.class);
             startActivity(intent);
         });
-
-        // Xử lý Navigation Staff
-        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
-        bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Highlight tab DS Hẹn
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_staff_appointments);
-        }
+        // Load lại danh sách khi quay lại màn hình này
+        loadAppointments();
+
+        // [FIX LỖI NAV] KHÔNG gọi setSelectedItemId ở đây nữa để tránh kích hoạt lại listener
     }
 
     private boolean handleStaffNavigation(@NonNull MenuItem item) {
         int id = item.getItemId();
 
+        // Nếu bấm vào chính tab hiện tại thì không làm gì
+        if (id == R.id.nav_staff_appointments) {
+            return true;
+        }
+
         if (id == R.id.nav_staff_home) {
             startActivity(new Intent(this, StaffDashboardActivity.class));
             overridePendingTransition(0, 0);
             return true;
-
         } else if (id == R.id.nav_staff_schedule) {
             startActivity(new Intent(this, DailyScheduleActivity.class));
             overridePendingTransition(0, 0);
             return true;
-
-        } else if (id == R.id.nav_staff_appointments) {
-            return true; // Đang ở đây rồi
         }
+
         return false;
     }
 
     /**
-     * Thực hiện gọi API để tải danh sách lịch hẹn
+     * Gọi API getAllLichHen và hứng dữ liệu bằng LichHenResponse
      */
     private void loadAppointments() {
-        // Khởi tạo RecyclerView trước để tránh lỗi NullPointer nếu API gọi thất bại
-        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
-
-        apiService.getAllLichHen().enqueue(new Callback<List<LichHen>>() {
+        // Sử dụng Call<List<LichHenResponse>> thay vì Call<List<LichHen>>
+        apiService.getAllLichHen().enqueue(new Callback<List<LichHenResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<List<LichHen>> call, @NonNull Response<List<LichHen>> response) {
+            public void onResponse(@NonNull Call<List<LichHenResponse>> call, @NonNull Response<List<LichHenResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<LichHen> fetchedAppointments = response.body();
+                    List<LichHenResponse> fetchedAppointments = response.body();
 
-                    // Xử lý dữ liệu và hiển thị lên RecyclerView
+                    // Đảo ngược để cái mới nhất lên đầu
+                    Collections.reverse(fetchedAppointments);
+
                     populateRecyclerView(fetchedAppointments);
-
-                    Toast.makeText(AppointmentManagerActivity.this, "Tải danh sách lịch hẹn thành công!", Toast.LENGTH_SHORT).show();
+                    // Bỏ Toast mỗi lần load để đỡ phiền user
                 } else {
-                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi tải dữ liệu: " + response.code(), Toast.LENGTH_LONG).show();
-                    populateRecyclerView(new ArrayList<>()); // Hiển thị danh sách rỗng
+                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi tải dữ liệu: " + response.code(), Toast.LENGTH_SHORT).show();
+                    populateRecyclerView(new ArrayList<>());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<LichHen>> call, @NonNull Throwable t) {
-                Toast.makeText(AppointmentManagerActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                populateRecyclerView(new ArrayList<>()); // Hiển thị danh sách rỗng
+            public void onFailure(@NonNull Call<List<LichHenResponse>> call, @NonNull Throwable t) {
+                Toast.makeText(AppointmentManagerActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                populateRecyclerView(new ArrayList<>());
             }
         });
     }
 
     /**
-     * Xử lý danh sách LichHen và đưa vào Adapter (bao gồm cả Header)
+     * Xử lý danh sách LichHenResponse và đưa vào Adapter
      */
-    private void populateRecyclerView(List<LichHen> fetchedAppointments) {
+    private void populateRecyclerView(List<LichHenResponse> fetchedAppointments) {
         List<Object> combinedList = createCombinedListWithHeaders(fetchedAppointments);
         SingleAppointmentAdapter adapter = new SingleAppointmentAdapter(this, combinedList);
         rvAppointments.setAdapter(adapter);
     }
 
     /**
-     * Chuyển đổi List<LichHen> thành List<Object> có AppointmentHeader
-     * NOTE: Logic nhóm theo ngày cần được phát triển thêm để xử lý chính xác hơn
+     * Chuyển đổi List<LichHenResponse> thành List<Object> có Header
      */
-    private List<Object> createCombinedListWithHeaders(List<LichHen> appointments) {
+    private List<Object> createCombinedListWithHeaders(List<LichHenResponse> appointments) {
         List<Object> list = new ArrayList<>();
 
         if (appointments == null || appointments.isEmpty()) {
-            list.add(new AppointmentHeader("Không tìm thấy lịch hẹn nào."));
+            list.add(new AppointmentHeader("Chưa có lịch hẹn nào."));
             return list;
         }
 
-        // Tạm thời, thêm một header chung và tất cả các mục lịch hẹn
-        list.add(new AppointmentHeader("Tất cả Lịch hẹn Đã Tải (" + appointments.size() + ")"));
+        list.add(new AppointmentHeader("Danh sách Lịch hẹn (" + appointments.size() + ")"));
         list.addAll(appointments);
 
         return list;

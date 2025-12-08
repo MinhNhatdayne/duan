@@ -15,7 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.api.ApiService;
-import com.example.nhakhoaapp.models.LichHen; // Tái sử dụng model LichHen
+import com.example.nhakhoaapp.models.request.LichHenRequest; // [SỬA] Dùng Request
+import com.example.nhakhoaapp.models.response.LichHenResponse; // [SỬA] Dùng Response
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,15 +27,15 @@ public class ConfirmationActivity extends AppCompatActivity {
     private ImageView imgBackButton;
     private Button btnConfirmBooking;
     private EditText etNotes;
-    
+
     private View detailService, detailDoctor, detailLocation, detailTime;
 
-    private ApiService apiService; 
+    private ApiService apiService;
 
-    // Dữ liệu cần thiết cho API (Giả định được truyền qua Intent)
-    private String patientId; 
-    private String doctorId; 
-    private String isoDateTime; 
+    // Dữ liệu cần thiết cho API
+    private String patientId;
+    private String doctorId;
+    private String isoDateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +44,11 @@ public class ConfirmationActivity extends AppCompatActivity {
 
         apiService = ApiClient.getApiService();
 
-        // Ánh xạ cơ bản
+        // Ánh xạ
         imgBackButton = findViewById(R.id.img_back_button);
         btnConfirmBooking = findViewById(R.id.btn_confirm_booking);
         etNotes = findViewById(R.id.et_notes);
-        
+
         detailService = findViewById(R.id.detail_service);
         detailDoctor = findViewById(R.id.detail_doctor);
         detailLocation = findViewById(R.id.detail_location);
@@ -57,16 +58,16 @@ public class ConfirmationActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String serviceName = intent.getStringExtra("SERVICE_NAME");
         String doctorName = intent.getStringExtra("DOCTOR_NAME");
-        String selectedDate = intent.getStringExtra("SELECTED_DATE"); 
-        String selectedTime = intent.getStringExtra("SELECTED_TIME"); 
-        
+        String selectedDate = intent.getStringExtra("SELECTED_DATE");
+        String selectedTime = intent.getStringExtra("SELECTED_TIME");
+
         patientId = intent.getStringExtra("PATIENT_ID");
         doctorId = intent.getStringExtra("DOCTOR_ID");
-        isoDateTime = intent.getStringExtra("FULL_ISO_DATE"); 
+        isoDateTime = intent.getStringExtra("FULL_ISO_DATE");
 
-        String fullTime = (selectedDate != null && selectedTime != null) 
-                          ? String.format("Ngày %s - %s", selectedDate, selectedTime) 
-                          : "Chưa chọn thời gian";
+        String fullTime = (selectedDate != null && selectedTime != null)
+                ? String.format("Ngày %s - %s", selectedDate, selectedTime)
+                : "Chưa chọn thời gian";
 
         // Gán dữ liệu lên giao diện
         setupDetailView(detailService, "Dịch vụ", serviceName != null ? serviceName : "Khám tổng quát");
@@ -82,7 +83,7 @@ public class ConfirmationActivity extends AppCompatActivity {
             createAppointment(patientId, doctorId, isoDateTime, etNotes.getText().toString());
         });
     }
-    
+
     /**
      * Phương thức gọi API để tạo lịch hẹn
      */
@@ -92,44 +93,49 @@ public class ConfirmationActivity extends AppCompatActivity {
             return;
         }
 
-        // Tái sử dụng model LichHen để tạo request body
-        LichHen request = new LichHen(); 
-        request.setId_benh_nhan(idBenhNhan); // set id_benh_nhan (String)
-        request.setId_bac_si(idBacSi);       // set id_bac_si (String)
-        request.setThoi_gian_hen(isoDateTime); // set thoi_gian_hen (String ISO 8601)
-        request.setLy_do_kham(notes);        // set ly_do_kham
-        // Trường trang_thai sẽ mặc định là "Chờ khám" trên backend
+        btnConfirmBooking.setEnabled(false); // Khóa nút để tránh bấm nhiều lần
 
-        // Gọi API
-        apiService.createLichHen(request).enqueue(new Callback<LichHen>() {
+        // [SỬA QUAN TRỌNG] Sử dụng LichHenRequest thay vì LichHen
+        LichHenRequest request = new LichHenRequest();
+        request.setIdBenhNhan(idBenhNhan);   // Gửi String ID
+        request.setIdBacSi(idBacSi);         // Gửi String ID
+        request.setThoiGianHen(isoDateTime); // Gửi String ISO Date
+        request.setLyDoKham(notes);
+        request.setTrangThai("ChoXacNhan"); // Set trạng thái mặc định
+
+        // Gọi API (Hứng kết quả là LichHenResponse)
+        apiService.createLichHen(request).enqueue(new Callback<LichHenResponse>() {
             @Override
-            public void onResponse(@NonNull Call<LichHen> call, @NonNull Response<LichHen> response) {
+            public void onResponse(@NonNull Call<LichHenResponse> call, @NonNull Response<LichHenResponse> response) {
+                btnConfirmBooking.setEnabled(true); // Mở lại nút
+
                 if (response.isSuccessful() && response.body() != null) {
-                    String newId = response.body().get_id();
-                    Toast.makeText(ConfirmationActivity.this, "Đặt lịch thành công! Mã: " + newId, Toast.LENGTH_LONG).show();
-                    
-                    // Chuyển về Dashboard và xóa stack
+                    // response.body() trả về LichHenResponse (chứa ID mới tạo)
+                    String newId = response.body().getId();
+                    Toast.makeText(ConfirmationActivity.this, "Đặt lịch thành công!", Toast.LENGTH_LONG).show();
+
+                    // Chuyển về Dashboard và xóa stack (ngăn quay lại màn hình này)
                     Intent dashboardIntent = new Intent(ConfirmationActivity.this, StaffDashboardActivity.class);
                     dashboardIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(dashboardIntent);
-                    
+
                 } else {
-                    Toast.makeText(ConfirmationActivity.this, "Lỗi khi tạo lịch hẹn: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ConfirmationActivity.this, "Lỗi tạo lịch: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<LichHen> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<LichHenResponse> call, @NonNull Throwable t) {
+                btnConfirmBooking.setEnabled(true);
                 Toast.makeText(ConfirmationActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-
     private void setupDetailView(View parentView, String title, String value) {
         TextView tvTitle = parentView.findViewById(R.id.tv_detail_title);
         TextView tvValue = parentView.findViewById(R.id.tv_detail_value);
-        
+
         if (tvTitle != null) tvTitle.setText(title);
         if (tvValue != null) tvValue.setText(value);
     }
