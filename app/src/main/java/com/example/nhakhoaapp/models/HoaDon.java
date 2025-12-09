@@ -1,6 +1,9 @@
 package com.example.nhakhoaapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class HoaDon {
+    @SerializedName("_id")
     private int id_hoa_don;
     private int id_benhnhan;
     private int id_nhanvien_lap;

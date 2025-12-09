@@ -1,10 +1,14 @@
 package com.example.nhakhoaapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 public class BaoHiem {
+    @SerializedName("_id")
     private int id_bao_hiem;
     private int id_benh_nhan;
+
     private String ma_bhyt;
     private String ten_cong_ty;
     private Date ngay_het_han;
