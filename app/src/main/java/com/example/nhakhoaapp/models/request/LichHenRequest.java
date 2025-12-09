@@ -5,38 +5,29 @@ import java.io.Serializable;
 
 public class LichHenRequest implements Serializable {
 
-    // [QUAN TRỌNG] Phải có @SerializedName khớp y hệt database MongoDB
-    @SerializedName("id_benh_nhan")
-    private String idBenhNhan;
-
-    @SerializedName("id_bac_si")
-    private String idBacSi;
-
-    @SerializedName("thoi_gian_hen")
-    private String thoiGianHen;
-
-    @SerializedName("ly_do_kham")
-    private String lyDoKham;
-
-    @SerializedName("trang_thai")
-    private String trangThai;
+    // Giữ nguyên tên biến giống model cũ để quen thuộc
+    private String id_benh_nhan;
+    private String id_bac_si;
+    private String thoi_gian_hen;
+    private String ly_do_kham;
+    private String trang_thai;
 
     // Constructor rỗng
     public LichHenRequest() {}
 
     // Getters & Setters
-    public String getIdBenhNhan() { return idBenhNhan; }
-    public void setIdBenhNhan(String idBenhNhan) { this.idBenhNhan = idBenhNhan; }
+    public String getId_benh_nhan() { return id_benh_nhan; }
+    public void setId_benh_nhan(String id_benh_nhan) { this.id_benh_nhan = id_benh_nhan; }
 
-    public String getIdBacSi() { return idBacSi; }
-    public void setIdBacSi(String idBacSi) { this.idBacSi = idBacSi; }
+    public String getId_bac_si() { return id_bac_si; }
+    public void setId_bac_si(String id_bac_si) { this.id_bac_si = id_bac_si; }
 
-    public String getThoiGianHen() { return thoiGianHen; }
-    public void setThoiGianHen(String thoiGianHen) { this.thoiGianHen = thoiGianHen; }
+    public String getThoi_gian_hen() { return thoi_gian_hen; }
+    public void setThoi_gian_hen(String thoi_gian_hen) { this.thoi_gian_hen = thoi_gian_hen; }
 
-    public String getLyDoKham() { return lyDoKham; }
-    public void setLyDoKham(String lyDoKham) { this.lyDoKham = lyDoKham; }
+    public String getLy_do_kham() { return ly_do_kham; }
+    public void setLy_do_kham(String ly_do_kham) { this.ly_do_kham = ly_do_kham; }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public String getTrang_thai() { return trang_thai; }
+    public void setTrang_thai(String trang_thai) { this.trang_thai = trang_thai; }
 }

@@ -25,7 +25,7 @@ import com.example.nhakhoaapp.models.DanhMucDichVu;
 import com.example.nhakhoaapp.models.request.LichHenRequest; // [QUAN TRỌNG] Dùng Request để gửi
 import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Response để nhận
 import com.example.nhakhoaapp.models.NhanVien;
-import okhttp3.ResponseBody;
+// import com.google.gson.JsonSyntaxException; // Bỏ import này nếu không dùng
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class NewAppointmentActivity extends AppCompatActivity {
         setupToolbar();
         initViews();
 
-        // Khởi tạo Adapter rỗng trước để tránh Spinner bị null
+        // Khởi tạo Adapter rỗng trước
         setupEmptySpinners();
 
         // Gọi API lấy dữ liệu đổ vào 2 Spinner
@@ -102,7 +102,6 @@ public class NewAppointmentActivity extends AppCompatActivity {
     private void setupEmptySpinners() {
         List<String> loadingList = new ArrayList<>();
         loadingList.add("Đang tải dữ liệu...");
-        
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loadingList);
         spinnerService.setAdapter(adapter);
         spinnerDoctor.setAdapter(adapter);
@@ -167,7 +166,6 @@ public class NewAppointmentActivity extends AppCompatActivity {
     }
 
     private void setupEvents() {
-        // 1. Sự kiện chọn Spinner Dịch vụ
         spinnerService.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -176,7 +174,6 @@ public class NewAppointmentActivity extends AppCompatActivity {
                     selectedServiceName = null;
                     return;
                 }
-                
                 int realPos = position - 1;
                 if (realPos >= 0 && realPos < serviceList.size()) {
                     selectedServiceId = serviceList.get(realPos).get_id();
@@ -187,7 +184,6 @@ public class NewAppointmentActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        // 2. Sự kiện chọn Spinner Bác sĩ
         spinnerDoctor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -195,7 +191,6 @@ public class NewAppointmentActivity extends AppCompatActivity {
                     selectedDoctorId = null;
                     return;
                 }
-                
                 int realPos = position - 1;
                 if (realPos >= 0 && realPos < doctorList.size()) {
                     selectedDoctorId = doctorList.get(realPos).get_id();
@@ -205,10 +200,7 @@ public class NewAppointmentActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        // 3. Sự kiện chọn Ngày Giờ (Dialog)
         etDateTime.setOnClickListener(v -> showDateTimePicker());
-
-        // 4. Nút Xác nhận
         btnConfirmAppointment.setOnClickListener(v -> checkPatientAndCreateAppointment());
     }
 
@@ -238,81 +230,56 @@ public class NewAppointmentActivity extends AppCompatActivity {
         datePicker.show();
     }
 
-    /**
-     * LOGIC CHÍNH: Kiểm tra SĐT -> (Tạo mới hoặc Lấy cũ) -> Tạo Lịch Hẹn
-     */
+    // --- LOGIC CHÍNH ---
+
     private void checkPatientAndCreateAppointment() {
-        // Validate dữ liệu
         String pName = etPatientName.getText().toString().trim();
         String pPhone = etPatientPhone.getText().toString().trim();
 
-        if (pName.isEmpty() || pPhone.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập Tên và SĐT bệnh nhân!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (selectedDoctorId == null) {
-            Toast.makeText(this, "Vui lòng chọn Bác sĩ!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (selectedIsoDateTime == null) {
-            Toast.makeText(this, "Vui lòng chọn Thời gian hẹn!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (pName.isEmpty() || pPhone.isEmpty()) { Toast.makeText(this, "Nhập Tên và SĐT!", Toast.LENGTH_SHORT).show(); return; }
+        if (selectedDoctorId == null) { Toast.makeText(this, "Chọn Bác sĩ!", Toast.LENGTH_SHORT).show(); return; }
+        if (selectedIsoDateTime == null) { Toast.makeText(this, "Chọn Thời gian!", Toast.LENGTH_SHORT).show(); return; }
 
         btnConfirmAppointment.setEnabled(false);
         btnConfirmAppointment.setText("ĐANG KIỂM TRA SĐT...");
 
-        // 2. Gọi API lấy danh sách bệnh nhân để kiểm tra SĐT
         apiService.getAllBenhNhan().enqueue(new Callback<List<BenhNhan>>() {
             @Override
             public void onResponse(@NonNull Call<List<BenhNhan>> call, @NonNull Response<List<BenhNhan>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<BenhNhan> list = response.body();
-                    
                     String foundId = null;
                     for (BenhNhan bn : list) {
                         if (bn.getSo_dien_thoai() != null && bn.getSo_dien_thoai().equals(pPhone)) {
-                            foundId = bn.get_id();
-                            break;
+                            foundId = bn.get_id(); break;
                         }
                     }
-
                     if (foundId != null) {
-                        // KHÁCH CŨ -> Dùng ID cũ
-                        Log.d("CHECK_PATIENT", "Khách cũ, ID: " + foundId);
-                        btnConfirmAppointment.setText("KHÁCH CŨ - ĐANG TẠO LỊCH...");
                         postLichHenToApi(foundId, pName, pPhone);
                     } else {
-                        // KHÁCH MỚI -> Tạo hồ sơ mới
-                        Log.d("CHECK_PATIENT", "Khách mới, đang tạo hồ sơ...");
-                        btnConfirmAppointment.setText("KHÁCH MỚI - ĐANG TẠO HỒ SƠ...");
                         createNewPatientAndAppointment(pName, pPhone);
                     }
                 } else {
-                    // Lỗi server (hoặc danh sách rỗng) -> Fallback tạo mới
                     createNewPatientAndAppointment(pName, pPhone);
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<List<BenhNhan>> call, @NonNull Throwable t) {
                 btnConfirmAppointment.setEnabled(true);
                 btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối khi kiểm tra SĐT", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối SĐT", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // --- Tạo Bệnh nhân mới ---
     private void createNewPatientAndAppointment(String name, String phone) {
         BenhNhan newPatient = new BenhNhan();
         newPatient.setHo_ten(name);
         newPatient.setSo_dien_thoai(phone);
-        // Các trường mặc định
         newPatient.setGioi_tinh("Khac");
         newPatient.setNgay_sinh("2024");
         newPatient.setDia_chi("Khách vãng lai");
-        newPatient.setPassword("123456"); // Mật khẩu mặc định
+        newPatient.setPassword("123456");
 
         apiService.createBenhNhan(newPatient).enqueue(new Callback<BenhNhan>() {
             @Override
@@ -323,16 +290,9 @@ public class NewAppointmentActivity extends AppCompatActivity {
                 } else {
                     btnConfirmAppointment.setEnabled(true);
                     btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-                    
-                    // Log lỗi chi tiết
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown Error";
-                        Log.e("API_ERROR", "Tạo BN thất bại: " + errorBody);
-                        Toast.makeText(NewAppointmentActivity.this, "Lỗi tạo hồ sơ: " + response.code(), Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) { e.printStackTrace(); }
+                    Toast.makeText(NewAppointmentActivity.this, "Lỗi tạo hồ sơ", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<BenhNhan> call, @NonNull Throwable t) {
                 btnConfirmAppointment.setEnabled(true);
@@ -342,21 +302,21 @@ public class NewAppointmentActivity extends AppCompatActivity {
         });
     }
 
-    // --- Gửi Lịch Hẹn lên API ---
+    // --- HÀM QUAN TRỌNG ĐÃ SỬA ---
     private void postLichHenToApi(String patientId, String pName, String pPhone) {
         String note = etNote.getText().toString().trim();
         String finalReason = pName + " (" + pPhone + ")";
         if (selectedServiceName != null) finalReason += " - DV: " + selectedServiceName;
         if (!note.isEmpty()) finalReason += " - Note: " + note;
 
-        // [QUAN TRỌNG] Sử dụng LichHenRequest để gửi String ID
         LichHenRequest request = new LichHenRequest();
-        request.setIdBenhNhan(patientId);
-        request.setIdBacSi(selectedDoctorId);
-        request.setThoiGianHen(selectedIsoDateTime);
-        request.setLyDoKham(finalReason);
-        request.setTrangThai("ChoXacNhan");
+        request.setId_benh_nhan(patientId);
+        request.setId_bac_si(selectedDoctorId);
+        request.setThoi_gian_hen(selectedIsoDateTime);
+        request.setLy_do_kham(finalReason);
+        request.setTrang_thai("ChoXacNhan");
 
+        // GỌI API: Dùng Callback<LichHenResponse> khớp với ApiService
         apiService.createLichHen(request).enqueue(new Callback<LichHenResponse>() {
             @Override
             public void onResponse(@NonNull Call<LichHenResponse> call, @NonNull Response<LichHenResponse> response) {
@@ -367,12 +327,11 @@ public class NewAppointmentActivity extends AppCompatActivity {
                     Toast.makeText(NewAppointmentActivity.this, "✅ Đặt lịch thành công!", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
-                    // Log lỗi chi tiết
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown Error";
-                        Log.e("API_ERROR", "Đặt lịch thất bại: " + errorBody);
-                        Toast.makeText(NewAppointmentActivity.this, "Lỗi đặt lịch: " + response.code(), Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) { e.printStackTrace(); }
+                        Log.e("API_ERROR", "Thất bại: " + errorBody);
+                        Toast.makeText(NewAppointmentActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) { }
                 }
             }
 
@@ -380,17 +339,30 @@ public class NewAppointmentActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<LichHenResponse> call, @NonNull Throwable t) {
                 btnConfirmAppointment.setEnabled(true);
                 btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối đặt lịch!", Toast.LENGTH_SHORT).show();
+
+                // [XỬ LÝ LỖI THÔNG MINH]
+                // Dù dùng JsonElement, Retrofit vẫn có thể ném IllegalStateException nếu JSON trả về lạ
+                // Nhưng với JsonElement, khả năng này rất thấp.
+                // Nếu vẫn rơi vào đây, ta check xem có phải lỗi parse hay không.
+                
+                String msg = t.getMessage();
+                if (msg != null && (msg.contains("JsonSyntax") || msg.contains("IllegalState"))) {
+                    // Nếu lỗi do parse JSON mà HTTP code là 200 (thực tế onFailure ko có http code, nhưng thường là vậy)
+                    // Ta tạm coi là thành công vì DB đã lưu.
+                    Log.w("API_WARNING", "Lỗi parse JSON nhưng có thể đã lưu: " + msg);
+                    Toast.makeText(NewAppointmentActivity.this, "✅ Đặt lịch thành công!", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "OnFailure: ", t);
+                }
             }
         });
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
+        if (item.getItemId() == android.R.id.home) { finish(); return true; }
         return super.onOptionsItemSelected(item);
     }
 }

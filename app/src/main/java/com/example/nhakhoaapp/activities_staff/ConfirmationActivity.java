@@ -97,11 +97,11 @@ public class ConfirmationActivity extends AppCompatActivity {
 
         // [SỬA QUAN TRỌNG] Sử dụng LichHenRequest thay vì LichHen
         LichHenRequest request = new LichHenRequest();
-        request.setIdBenhNhan(idBenhNhan);   // Gửi String ID
-        request.setIdBacSi(idBacSi);         // Gửi String ID
-        request.setThoiGianHen(isoDateTime); // Gửi String ISO Date
-        request.setLyDoKham(notes);
-        request.setTrangThai("ChoXacNhan"); // Set trạng thái mặc định
+        request.setId_benh_nhan(idBenhNhan);   // Gửi String ID
+        request.setId_bac_si(idBacSi);         // Gửi String ID
+        request.setThoi_gian_hen(isoDateTime); // Gửi String ISO Date
+        request.setLy_do_kham(notes);
+        request.setTrang_thai("ChoXacNhan"); // Set trạng thái mặc định
 
         // Gọi API (Hứng kết quả là LichHenResponse)
         apiService.createLichHen(request).enqueue(new Callback<LichHenResponse>() {
@@ -111,7 +111,7 @@ public class ConfirmationActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     // response.body() trả về LichHenResponse (chứa ID mới tạo)
-                    String newId = response.body().getId();
+                    String newId = response.body().get_id();
                     Toast.makeText(ConfirmationActivity.this, "Đặt lịch thành công!", Toast.LENGTH_LONG).show();
 
                     // Chuyển về Dashboard và xóa stack (ngăn quay lại màn hình này)

@@ -52,16 +52,16 @@ public class DailyAppointmentAdapter extends RecyclerView.Adapter<DailyAppointme
         LichHenResponse item = list.get(position);
 
         // Hiển thị Tên (Lấy từ Object đã populate)
-        holder.tvPatientName.setText(item.getTenBenhNhanDisplay());
+        holder.tvPatientName.setText(item.getTen_benh_nhan());
 
         // Hiển thị Giờ (Format lại từ ISO string)
-        holder.tvTime.setText(formatTime(item.getThoiGianHen()));
+        holder.tvTime.setText(formatTime(item.getThoi_gian_hen()));
 
         // Hiển thị Dịch vụ/Lý do
-        holder.tvReason.setText(item.getLyDoKham());
+        holder.tvReason.setText(item.getLy_do_kham());
 
         // Xử lý màu trạng thái
-        String status = item.getTrangThai();
+        String status = item.getTrang_thai();
         if ("ChoXacNhan".equals(status)) {
             holder.tvStatus.setText("Chờ xác nhận");
             holder.tvStatus.setTextColor(Color.parseColor("#FF9800")); // Cam

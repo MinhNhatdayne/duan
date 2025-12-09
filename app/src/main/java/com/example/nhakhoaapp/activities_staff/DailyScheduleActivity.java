@@ -144,11 +144,11 @@ public class DailyScheduleActivity extends AppCompatActivity {
         long pending = 0;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             pending = appointments.stream()
-                    .filter(l -> "ChoXacNhan".equals(l.getTrangThai())) // Dùng getTrangThai() mới
+                    .filter(l -> "ChoXacNhan".equals(l.getTrang_thai())) // Dùng getTrangThai() mới
                     .count();
         } else {
             for (LichHenResponse item : appointments) {
-                if ("ChoXacNhan".equals(item.getTrangThai())) pending++;
+                if ("ChoXacNhan".equals(item.getTrang_thai())) pending++;
             }
         }
 
