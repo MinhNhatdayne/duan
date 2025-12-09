@@ -1,16 +1,19 @@
 package com.example.nhakhoaapp.api;
 
-import com.example.nhakhoaapp.models.BenhNhan;
-import com.example.nhakhoaapp.models.NhanVien;
-import com.example.nhakhoaapp.models.Img;
-import com.example.nhakhoaapp.models.ChiTietToaThuoc;
-import com.example.nhakhoaapp.models.HoSoBenhAn;
-import com.example.nhakhoaapp.models.LichHen;
-import com.example.nhakhoaapp.models.HoaDon;
-import com.example.nhakhoaapp.models.ChiTietHoaDon;
-import com.example.nhakhoaapp.models.BaoHiem;
-import com.example.nhakhoaapp.models.DanhMucDichVu;
-import com.example.nhakhoaapp.models.ChiTietDichVu;
+import com.example.nhakhoaapp.models.entity.BenhNhan;
+import com.example.nhakhoaapp.models.entity.NhanVien;
+import com.example.nhakhoaapp.models.entity.Img;
+import com.example.nhakhoaapp.models.entity.ChiTietToaThuoc;
+import com.example.nhakhoaapp.models.entity.HoSoBenhAn;
+// Import LichHenRequest và LichHenResponse
+import com.example.nhakhoaapp.models.request.LichHenRequest;
+import com.example.nhakhoaapp.models.response.LichHenResponse;
+import com.example.nhakhoaapp.models.entity.HoaDon;
+import com.example.nhakhoaapp.models.entity.ChiTietHoaDon;
+import com.example.nhakhoaapp.models.entity.BaoHiem;
+import com.example.nhakhoaapp.models.entity.DanhMucDichVu;
+import com.example.nhakhoaapp.models.entity.ChiTietDichVu;
+import com.example.nhakhoaapp.models.dto.AppointmentStats;
 
 import java.util.List;
 
@@ -25,7 +28,6 @@ import retrofit2.http.Path;
 public interface ApiService {
 
     // ===================== BENH NHÂN =====================
-
     @GET("BenhNhan")
     Call<List<BenhNhan>> getAllBenhNhan();
 
@@ -36,17 +38,13 @@ public interface ApiService {
     Call<BenhNhan> createBenhNhan(@Body BenhNhan benhNhan);
 
     @PUT("BenhNhan/{id}")
-    Call<BenhNhan> updateBenhNhan(
-            @Path("id") String id,
-            @Body BenhNhan benhNhan
-    );
+    Call<BenhNhan> updateBenhNhan(@Path("id") String id, @Body BenhNhan benhNhan);
 
     @DELETE("BenhNhan/{id}")
     Call<Void> deleteBenhNhan(@Path("id") String id);
 
 
     // ===================== NHÂN VIÊN =====================
-
     @GET("NhanVien")
     Call<List<NhanVien>> getAllNhanVien();
 
@@ -57,17 +55,13 @@ public interface ApiService {
     Call<NhanVien> createNhanVien(@Body NhanVien nv);
 
     @PUT("NhanVien/{id}")
-    Call<NhanVien> updateNhanVien(
-            @Path("id") String id,
-            @Body NhanVien nv
-    );
+    Call<NhanVien> updateNhanVien(@Path("id") String id, @Body NhanVien nv);
 
     @DELETE("NhanVien/{id}")
     Call<Void> deleteNhanVien(@Path("id") String id);
 
 
     // ===================== IMG =====================
-
     @GET("Img")
     Call<List<Img>> getAllImg();
 
@@ -78,17 +72,13 @@ public interface ApiService {
     Call<Img> createImg(@Body Img img);
 
     @PUT("Img/{id}")
-    Call<Img> updateImg(
-            @Path("id") String id,
-            @Body Img img
-    );
+    Call<Img> updateImg(@Path("id") String id, @Body Img img);
 
     @DELETE("Img/{id}")
     Call<Void> deleteImg(@Path("id") String id);
 
 
     // ===================== CHI TIẾT TOA THUỐC =====================
-
     @GET("ChiTietToaThuoc")
     Call<List<ChiTietToaThuoc>> getAllChiTietToaThuoc();
 
@@ -99,17 +89,13 @@ public interface ApiService {
     Call<ChiTietToaThuoc> createChiTietToaThuoc(@Body ChiTietToaThuoc cttt);
 
     @PUT("ChiTietToaThuoc/{id}")
-    Call<ChiTietToaThuoc> updateChiTietToaThuoc(
-            @Path("id") String id,
-            @Body ChiTietToaThuoc cttt
-    );
+    Call<ChiTietToaThuoc> updateChiTietToaThuoc(@Path("id") String id, @Body ChiTietToaThuoc cttt);
 
     @DELETE("ChiTietToaThuoc/{id}")
     Call<Void> deleteChiTietToaThuoc(@Path("id") String id);
 
 
     // ===================== HỒ SƠ BỆNH ÁN =====================
-
     @GET("HoSoBenhAn")
     Call<List<HoSoBenhAn>> getAllHoSoBenhAn();
 
@@ -120,38 +106,43 @@ public interface ApiService {
     Call<HoSoBenhAn> createHoSoBenhAn(@Body HoSoBenhAn hsba);
 
     @PUT("HoSoBenhAn/{id}")
-    Call<HoSoBenhAn> updateHoSoBenhAn(
-            @Path("id") String id,
-            @Body HoSoBenhAn hsba
-    );
+    Call<HoSoBenhAn> updateHoSoBenhAn(@Path("id") String id, @Body HoSoBenhAn hsba);
 
     @DELETE("HoSoBenhAn/{id}")
     Call<Void> deleteHoSoBenhAn(@Path("id") String id);
 
 
-    // ===================== LỊCH HẸN =====================
+    // ===================== LỊCH HẸN (ĐÃ CẬP NHẬT REQUEST/RESPONSE) =====================
 
+    // [GET] Lấy danh sách -> Trả về Response (Chứa Object Info)
     @GET("LichHen")
-    Call<List<LichHen>> getAllLichHen();
+    Call<List<LichHenResponse>> getAllLichHen();
 
     @GET("LichHen/{id}")
-    Call<LichHen> getLichHenById(@Path("id") String id);
+    Call<LichHenResponse> getLichHenById(@Path("id") String id);
 
+    // [GET] Danh sách hôm nay -> Trả về Response
+    @GET("LichHen/today/list") 
+    Call<List<LichHenResponse>> getTodayAppointments();
+
+    // [POST] Tạo mới -> Gửi Request (Chứa String ID)
+    // Response trả về có thể là Object vừa tạo, dùng LichHenResponse để hứng ID mới nếu cần
     @POST("LichHen")
-    Call<LichHen> createLichHen(@Body LichHen lichHen);
+    Call<LichHenResponse> createLichHen(@Body LichHenRequest lichHenRequest);
 
+    // [PUT] Cập nhật -> Gửi Request
     @PUT("LichHen/{id}")
-    Call<LichHen> updateLichHen(
-            @Path("id") String id,
-            @Body LichHen lichHen
-    );
+    Call<LichHenResponse> updateLichHen(@Path("id") String id, @Body LichHenRequest lichHenRequest);
 
     @DELETE("LichHen/{id}")
     Call<Void> deleteLichHen(@Path("id") String id);
 
+    // [GET] Thống kê Dashboard
+    @GET("LichHen/stats/today")
+    Call<AppointmentStats> getTodayAppointmentStats();
+
 
     // ===================== HÓA ĐƠN =====================
-
     @GET("HoaDon")
     Call<List<HoaDon>> getAllHoaDon();
 
@@ -162,17 +153,13 @@ public interface ApiService {
     Call<HoaDon> createHoaDon(@Body HoaDon hoaDon);
 
     @PUT("HoaDon/{id}")
-    Call<HoaDon> updateHoaDon(
-            @Path("id") String id,
-            @Body HoaDon hoaDon
-    );
+    Call<HoaDon> updateHoaDon(@Path("id") String id, @Body HoaDon hoaDon);
 
     @DELETE("HoaDon/{id}")
     Call<Void> deleteHoaDon(@Path("id") String id);
 
 
     // ===================== CHI TIẾT HÓA ĐƠN =====================
-
     @GET("ChiTietHoaDon")
     Call<List<ChiTietHoaDon>> getAllChiTietHoaDon();
 
@@ -183,17 +170,13 @@ public interface ApiService {
     Call<ChiTietHoaDon> createChiTietHoaDon(@Body ChiTietHoaDon cthd);
 
     @PUT("ChiTietHoaDon/{id}")
-    Call<ChiTietHoaDon> updateChiTietHoaDon(
-            @Path("id") String id,
-            @Body ChiTietHoaDon cthd
-    );
+    Call<ChiTietHoaDon> updateChiTietHoaDon(@Path("id") String id, @Body ChiTietHoaDon cthd);
 
     @DELETE("ChiTietHoaDon/{id}")
     Call<Void> deleteChiTietHoaDon(@Path("id") String id);
 
 
     // ===================== BẢO HIỂM =====================
-
     @GET("BaoHiem")
     Call<List<BaoHiem>> getAllBaoHiem();
 
@@ -204,17 +187,13 @@ public interface ApiService {
     Call<BaoHiem> createBaoHiem(@Body BaoHiem baoHiem);
 
     @PUT("BaoHiem/{id}")
-    Call<BaoHiem> updateBaoHiem(
-            @Path("id") String id,
-            @Body BaoHiem baoHiem
-    );
+    Call<BaoHiem> updateBaoHiem(@Path("id") String id, @Body BaoHiem baoHiem);
 
     @DELETE("BaoHiem/{id}")
     Call<Void> deleteBaoHiem(@Path("id") String id);
 
 
     // ===================== DANH MỤC DỊCH VỤ =====================
-
     @GET("DanhMucDichVu")
     Call<List<DanhMucDichVu>> getAllDanhMucDichVu();
 
@@ -225,17 +204,13 @@ public interface ApiService {
     Call<DanhMucDichVu> createDanhMucDichVu(@Body DanhMucDichVu dmdv);
 
     @PUT("DanhMucDichVu/{id}")
-    Call<DanhMucDichVu> updateDanhMucDichVu(
-            @Path("id") String id,
-            @Body DanhMucDichVu dmdv
-    );
+    Call<DanhMucDichVu> updateDanhMucDichVu(@Path("id") String id, @Body DanhMucDichVu dmdv);
 
     @DELETE("DanhMucDichVu/{id}")
     Call<Void> deleteDanhMucDichVu(@Path("id") String id);
 
 
     // ===================== CHI TIẾT DỊCH VỤ =====================
-
     @GET("ChiTietDichVu")
     Call<List<ChiTietDichVu>> getAllChiTietDichVu();
 
@@ -246,12 +221,8 @@ public interface ApiService {
     Call<ChiTietDichVu> createChiTietDichVu(@Body ChiTietDichVu ctdv);
 
     @PUT("ChiTietDichVu/{id}")
-    Call<ChiTietDichVu> updateChiTietDichVu(
-            @Path("id") String id,
-            @Body ChiTietDichVu ctdv
-    );
+    Call<ChiTietDichVu> updateChiTietDichVu(@Path("id") String id, @Body ChiTietDichVu ctdv);
 
     @DELETE("ChiTietDichVu/{id}")
     Call<Void> deleteChiTietDichVu(@Path("id") String id);
-    //api đổ dữ liệu đã xg mai xem lại model và xử lý dữ liệu
 }

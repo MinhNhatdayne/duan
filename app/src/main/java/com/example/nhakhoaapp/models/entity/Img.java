@@ -1,7 +1,6 @@
-package com.example.nhakhoaapp.models;
+package com.example.nhakhoaapp.models.entity;
 
 public class Img {
-//model để tạm tạm chưa chỉnh
     private String _id;          // MongoDB tự tạo
     private String link;         // Link ảnh
     private String id_nhan_vien; // ObjectId dạng String

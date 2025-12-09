@@ -4,75 +4,83 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.DailyAppointmentAdapter;
-import com.example.nhakhoaapp.models.LichHen;
+import com.example.nhakhoaapp.api.ApiClient;
+import com.example.nhakhoaapp.api.ApiService;
+import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Model Response
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DailyScheduleActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private TextView tvCurrentDate, tvAppointmentCount;
-    
-    // 1. Khai báo BottomNavigation
     private BottomNavigationView bottomNavigationView;
+    private ApiService apiService;
+
+    // Adapter
+    private DailyAppointmentAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_schedule);
 
-        // Ánh xạ View
+        apiService = ApiClient.getApiService();
+
         rvAppointments = findViewById(R.id.rv_daily_appointments);
         tvCurrentDate = findViewById(R.id.tv_current_date);
         tvAppointmentCount = findViewById(R.id.tv_appointment_count);
 
-        // Thiết lập Toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Lịch Khám Hôm Nay");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        
-        loadDailySchedule();
 
-        // 2. Xử lý Bottom Navigation Staff
+        setupRecyclerView();
+        updateDateDisplay();
+
+        // Gọi API
+        fetchDailySchedule();
+
         bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
         bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
     }
 
-    // 3. Highlight tab "Lịch ngày" khi mở màn hình này
     @Override
     protected void onResume() {
         super.onResume();
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_staff_schedule);
         }
+        fetchDailySchedule();
     }
 
-    // 4. Hàm điều hướng chung cho Staff
     private boolean handleStaffNavigation(@NonNull MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.nav_staff_home) {
             startActivity(new Intent(this, StaffDashboardActivity.class));
             overridePendingTransition(0, 0);
             return true;
-
         } else if (id == R.id.nav_staff_schedule) {
-            return true; // Đang ở màn hình này rồi
-
+            return true;
         } else if (id == R.id.nav_staff_appointments) {
             startActivity(new Intent(this, AppointmentManagerActivity.class));
             overridePendingTransition(0, 0);
@@ -81,41 +89,78 @@ public class DailyScheduleActivity extends AppCompatActivity {
         return false;
     }
 
-    private void loadDailySchedule() {
-        // Tạo danh sách lịch hẹn giả lập
-        List<LichHen> appointments = createDummyAppointments();
-
-        // Cập nhật thông tin tổng quan
-        updateSummary(appointments);
-
-        // Thiết lập Adapter cho RecyclerView
-        DailyAppointmentAdapter adapter = new DailyAppointmentAdapter(this, appointments);
+    private void setupRecyclerView() {
+        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
+        // Khởi tạo Adapter với danh sách rỗng (Kiểu LichHenResponse)
+        adapter = new DailyAppointmentAdapter(this, new ArrayList<>());
         rvAppointments.setAdapter(adapter);
     }
 
-    private List<LichHen> createDummyAppointments() {
-        List<LichHen> list = new ArrayList<>();
-        Date now = Calendar.getInstance().getTime();
+    /**
+     * Hàm gọi API để lấy danh sách lịch hẹn trong ngày
+     */
+    private void fetchDailySchedule() {
+        tvAppointmentCount.setText("Đang tải lịch hẹn...");
 
-        // Giả lập 5 lịch hẹn
-        list.add(new LichHen(101, 1, 1, now, "Khám định kỳ", "Đã khám", "Nguyễn Mạnh Toàn", "08:30"));
-        list.add(new LichHen(102, 2, 1, now, "Điều trị tủy răng", "Đang chờ", "Trần Thị Lan", "09:30"));
-        list.add(new LichHen(103, 3, 1, now, "Nhổ răng khôn", "Đang chờ", "Lê Văn Hùng", "10:30"));
-        list.add(new LichHen(104, 4, 1, now, "Tái khám chỉnh nha", "Chưa khám", "Phạm Thị Thúy", "14:00"));
-        list.add(new LichHen(105, 5, 1, now, "Khám tổng quát", "Dời lịch", "Vũ Minh Đức", "15:30"));
+        // Sử dụng Call<List<LichHenResponse>>
+        apiService.getTodayAppointments().enqueue(new Callback<List<LichHenResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<LichHenResponse>> call, @NonNull Response<List<LichHenResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<LichHenResponse> appointments = response.body();
 
-        return list;
+                    // Cập nhật Adapter
+                    if (adapter != null) {
+                        adapter.setData(appointments);
+                    }
+
+                    updateSummary(appointments);
+
+                } else {
+                    Toast.makeText(DailyScheduleActivity.this, "Không có lịch hẹn hôm nay", Toast.LENGTH_SHORT).show();
+                    updateSummary(new ArrayList<>());
+                    if (adapter != null) adapter.setData(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<LichHenResponse>> call, @NonNull Throwable t) {
+                Toast.makeText(DailyScheduleActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                updateSummary(new ArrayList<>());
+            }
+        });
     }
-    
-    private void updateSummary(List<LichHen> appointments) {
+
+    private void updateDateDisplay() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         String today = dateFormat.format(Calendar.getInstance().getTime());
-        
         tvCurrentDate.setText(String.format("Hôm nay: %s", today));
+    }
 
+    private void updateSummary(List<LichHenResponse> appointments) {
         int total = appointments.size();
-        long pending = appointments.stream().filter(l -> l.getTrang_thai().equals("Đang chờ")).count();
-        
-        tvAppointmentCount.setText(String.format("Tổng số lịch hẹn: %d (Đang chờ: %d)", total, pending));
+
+        // Đếm số lượng "ChoXacNhan" (Tên status trong DB của bạn)
+        long pending = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            pending = appointments.stream()
+                    .filter(l -> "ChoXacNhan".equals(l.getTrang_thai())) // Dùng getTrangThai() mới
+                    .count();
+        } else {
+            for (LichHenResponse item : appointments) {
+                if ("ChoXacNhan".equals(item.getTrang_thai())) pending++;
+            }
+        }
+
+        tvAppointmentCount.setText(String.format("Tổng số: %d (Chờ xác nhận: %d)", total, pending));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
