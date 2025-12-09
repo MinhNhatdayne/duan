@@ -7,6 +7,8 @@ import com.example.nhakhoaapp.models.entity.ChiTietToaThuoc;
 import com.example.nhakhoaapp.models.entity.HoSoBenhAn;
 // Import LichHenRequest và LichHenResponse
 import com.example.nhakhoaapp.models.request.LichHenRequest;
+import com.example.nhakhoaapp.models.request.LoginRequest;
+import com.example.nhakhoaapp.models.request.RegisterRequest;
 import com.example.nhakhoaapp.models.response.LichHenResponse;
 import com.example.nhakhoaapp.models.entity.HoaDon;
 import com.example.nhakhoaapp.models.entity.ChiTietHoaDon;
@@ -14,6 +16,7 @@ import com.example.nhakhoaapp.models.entity.BaoHiem;
 import com.example.nhakhoaapp.models.entity.DanhMucDichVu;
 import com.example.nhakhoaapp.models.entity.ChiTietDichVu;
 import com.example.nhakhoaapp.models.dto.AppointmentStats;
+import com.example.nhakhoaapp.models.response.LoginResponse;
 
 import java.util.List;
 
@@ -28,6 +31,22 @@ import retrofit2.http.Path;
 public interface ApiService {
 
     // ===================== BENH NHÂN =====================
+    @POST("api/auth/login")
+    Call<LoginResponse> login(@Body LoginRequest request);
+
+    // Thêm API Đăng ký
+    // Bạn cần tạo class RegisterRequest (chứa ho_ten, email, password...) tương ứng
+    @POST("api/auth/register")
+    Call<LoginResponse> register(@Body RegisterRequest request);
+
+
+    // --- KHU VỰC LỊCH HẸN ---
+
+    // API Lấy lịch hẹn của RIÊNG tôi
+    // Gọi: apiService.getMyAppointments("ID_CUA_TOI")
+    @GET("LichHen/my-history/{id}")
+    Call<List<LichHenResponse>> getMyAppointments(@Path("id") String benhNhanId);
+
     @GET("BenhNhan")
     Call<List<BenhNhan>> getAllBenhNhan();
 
