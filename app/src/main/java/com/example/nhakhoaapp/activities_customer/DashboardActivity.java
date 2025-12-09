@@ -1,6 +1,8 @@
 package com.example.nhakhoaapp.activities_customer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhakhoaapp.R;
+import com.example.nhakhoaapp.api.ApiClient; // Dùng ApiClient cho giống LoginActivity
+import com.example.nhakhoaapp.models.entity.BenhNhan;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -20,21 +28,19 @@ public class DashboardActivity extends AppCompatActivity {
     private Button btnBookAppointment;
     private BottomNavigationView bottomNavigationView;
 
-    // Role từ User login — tạm gán cứng
-    private String userRole = "PATIENT";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
         initViews();
-        loadUserData();
-        applyRoleBasedUI(userRole);
         setupListeners();
+        
+        // --- BẮT ĐẦU PHẦN SỬA ---
+        loadUserDataFromApi();
+        // --- KẾT THÚC PHẦN SỬA ---
     }
 
-    /** Mỗi lần quay lại Dashboard → tab Home luôn được highlight */
     @Override
     protected void onResume() {
         super.onResume();
@@ -47,59 +53,57 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
     }
 
-    /** Giả lập load dữ liệu user */
-    private void loadUserData() {
-        String userName = "Nguyễn Mạnh Toàn"; // test thôi
-        tvUserName.setText(userName);
-    }
+    private void loadUserDataFromApi() {
+        // 1. Lấy SharedPreferences (Tên file "UserPrefs" khớp với LoginActivity)
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        
+        // 2. Lấy ID bằng key "USER_ID" (KHỚP VỚI LOGIN ACTIVITY BẠN GỬI)
+        String userId = prefs.getString("USER_ID", null);
+        
+        // Lấy tên tạm thời hiển thị trước khi API tải xong
+        String tempName = prefs.getString("USER_NAME", "Khách hàng");
+        tvUserName.setText(tempName);
 
-    /** Phân quyền UI dựa theo Role */
-    private void applyRoleBasedUI(String role) {
-        if ("PATIENT".equals(role)) {
-            btnBookAppointment.setVisibility(View.VISIBLE);
-        } else {
-            btnBookAppointment.setVisibility(View.GONE);
+        if (userId == null) {
+            Toast.makeText(this, "Chưa đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        Toast.makeText(this, "Vai trò: " + role, Toast.LENGTH_SHORT).show();
+        // 3. Gọi API lấy thông tin chi tiết
+        ApiClient.getApiService().getBenhNhanById(userId).enqueue(new Callback<BenhNhan>() {
+            @Override
+            public void onResponse(Call<BenhNhan> call, Response<BenhNhan> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    BenhNhan bn = response.body();
+                    tvUserName.setText(bn.getHo_ten()); // Cập nhật tên chính xác từ Server
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BenhNhan> call, Throwable t) {
+                // Nếu lỗi mạng thì vẫn giữ tên lấy từ SharedPreferences
+            }
+        });
     }
 
-    /** Gán sự kiện click */
     private void setupListeners() {
-
-        // Nút “Đặt ngay”
         btnBookAppointment.setOnClickListener(v -> {
             startActivity(new Intent(this, BookingActivity.class));
         });
 
-        // Xử lý navigation
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            handleBottomNav(item);
-            return true;
-        });
+        bottomNavigationView.setOnItemSelectedListener(this::handleBottomNav);
     }
 
-    /** Điều hướng BottomNavigation – tránh mở Activity đang mở */
-    private void handleBottomNav(@NonNull MenuItem item) {
-
+    private boolean handleBottomNav(@NonNull MenuItem item) {
         int id = item.getItemId();
+        if (id == R.id.nav_home) return true;
+        
+        Intent intent = null;
+        if (id == R.id.nav_booking) intent = new Intent(this, BookingActivity.class);
+        else if (id == R.id.nav_notifications) intent = new Intent(this, NotificationsActivity.class);
+        else if (id == R.id.nav_profile) intent = new Intent(this, ProfileActivity.class);
 
-        if (id == R.id.nav_home) {
-            return;
-
-        } else if (id == R.id.nav_booking) {
-            startActivity(new Intent(this, BookingActivity.class));
-            return;
-
-        } else if (id == R.id.nav_notifications) {
-            startActivity(new Intent(this, NotificationsActivity.class));
-            return;
-
-        } else if (id == R.id.nav_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
-            return;
-        }
-
+        if (intent != null) startActivity(intent);
+        return true;
     }
-
 }

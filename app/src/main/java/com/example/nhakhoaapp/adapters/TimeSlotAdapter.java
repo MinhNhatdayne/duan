@@ -44,26 +44,40 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
 
         holder.tvTime.setText(slot.getTime());
 
-        // Nếu slot không khả dụng → mờ, không click được
-        holder.itemView.setAlpha(slot.isAvailable() ? 1f : 0.3f);
-        holder.itemView.setClickable(slot.isAvailable());
+        // 1. Xử lý hiển thị Disable/Enable
+        // Cần setEnabled để đồng bộ trạng thái với View cha
+        if (slot.isAvailable()) {
+            holder.itemView.setAlpha(1.0f);       // Rõ nét
+            holder.itemView.setEnabled(true);     // Cho phép tương tác
+            holder.itemView.setClickable(true);
+        } else {
+            holder.itemView.setAlpha(0.3f);       // Mờ đi
+            holder.itemView.setEnabled(false);    // Vô hiệu hóa
+            holder.itemView.setClickable(false);
+        }
 
-        // Set trạng thái SELECTED
+        // 2. Set trạng thái Selected (Quan trọng để XML đổi màu viền/nền)
         holder.itemView.setSelected(selectedPosition == position);
 
+        // 3. Sự kiện Click
         holder.itemView.setOnClickListener(v -> {
             int adapterPos = holder.getAdapterPosition();
             if (adapterPos == RecyclerView.NO_POSITION) return;
 
             TimeSlot clickedSlot = timeSlots.get(adapterPos);
+
+            // Kiểm tra an toàn: Nếu không available thì thoát luôn
             if (!clickedSlot.isAvailable()) return;
 
+            // Logic cập nhật vị trí chọn
             int oldPos = selectedPosition;
             selectedPosition = adapterPos;
 
+            // Cập nhật giao diện: Reset cái cũ, highlight cái mới
             notifyItemChanged(oldPos);
-            notifyItemChanged(adapterPos);
+            notifyItemChanged(selectedPosition);
 
+            // Gửi sự kiện ra ngoài Activity
             if (listener != null) listener.onSlotClick(clickedSlot, adapterPos);
         });
     }
@@ -76,6 +90,9 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
     /** Chọn slot mặc định từ Activity */
     public void selectPosition(int position) {
         if (position < 0 || position >= timeSlots.size()) return;
+
+        // Kiểm tra nếu vị trí mặc định không available thì không chọn
+        if (!timeSlots.get(position).isAvailable()) return;
 
         int oldPos = selectedPosition;
         selectedPosition = position;
@@ -92,6 +109,7 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.ViewHo
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Ánh xạ ID từ file item_time_slot.xml
             tvTime = itemView.findViewById(R.id.tv_time_slot);
         }
     }
