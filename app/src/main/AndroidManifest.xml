@@ -14,9 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NhaKhoaApp">
-        <activity
-            android:name=".activities_staff.ManageActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".activities_staff.ManageActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".activities_staff.AppointmentManagerActivity"
             android:exported="false" />
@@ -53,9 +53,21 @@
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />
+        <activity android:name=".activities_staff.StaffEditorActivity"
+            android:parentActivityName=".activities_customer.StaffListActivity"/>
+        <activity android:name=".activities_customer.StaffListActivity"
+            android:parentActivityName=".activities_staff.ManageActivity"/>
+        <activity android:name=".activities_customer.PatientListActivity"
+            android:parentActivityName=".activities_staff.ManageActivity" />
+        <activity android:name=".activities_customer.PatientEditorActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
+        <activity android:name=".activities.RecordListActivity" />
+        <activity android:name=".activities.RecordEditorActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".activities_staff.ManageActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
