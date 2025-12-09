@@ -9,7 +9,7 @@
 //import androidx.recyclerview.widget.RecyclerView;
 //
 //import com.example.nhakhoaapp.R;
-//import com.example.nhakhoaapp.models.BenhNhan;
+//import com.example.nhakhoaapp.models.entity.BenhNhan;
 //
 //import java.util.ArrayList;
 //import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.nhakhoaapp.models;
+package com.example.nhakhoaapp.models.entity;
 
 // KHÔNG CẦN import java.util.Date;
 public class LichHen {

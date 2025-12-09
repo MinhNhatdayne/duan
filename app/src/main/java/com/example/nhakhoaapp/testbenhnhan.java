@@ -13,7 +13,7 @@
 //import com.example.nhakhoaapp.adapters.apdaptertestbenhnhan;
 //import com.example.nhakhoaapp.api.ApiClient;
 //import com.example.nhakhoaapp.api.ApiService;
-//import com.example.nhakhoaapp.models.BenhNhan;
+//import com.example.nhakhoaapp.models.entity.BenhNhan;
 //
 //import java.util.List;
 //

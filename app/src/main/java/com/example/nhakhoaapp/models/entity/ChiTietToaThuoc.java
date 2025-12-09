@@ -1,4 +1,4 @@
-package com.example.nhakhoaapp.models;
+package com.example.nhakhoaapp.models.entity;
 
 public class ChiTietToaThuoc {
     private String _id; // ObjectId

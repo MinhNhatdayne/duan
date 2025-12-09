@@ -1,20 +1,19 @@
 package com.example.nhakhoaapp.api;
 
-import com.example.nhakhoaapp.models.BenhNhan;
-import com.example.nhakhoaapp.models.NhanVien;
-import com.example.nhakhoaapp.models.Img;
-import com.example.nhakhoaapp.models.ChiTietToaThuoc;
-import com.example.nhakhoaapp.models.HoSoBenhAn;
+import com.example.nhakhoaapp.models.entity.BenhNhan;
+import com.example.nhakhoaapp.models.entity.NhanVien;
+import com.example.nhakhoaapp.models.entity.Img;
+import com.example.nhakhoaapp.models.entity.ChiTietToaThuoc;
+import com.example.nhakhoaapp.models.entity.HoSoBenhAn;
 // Import LichHenRequest và LichHenResponse
 import com.example.nhakhoaapp.models.request.LichHenRequest;
 import com.example.nhakhoaapp.models.response.LichHenResponse;
-import com.example.nhakhoaapp.models.HoaDon;
-import com.example.nhakhoaapp.models.ChiTietHoaDon;
-import com.example.nhakhoaapp.models.BaoHiem;
-import com.example.nhakhoaapp.models.DanhMucDichVu;
-import com.example.nhakhoaapp.models.ChiTietDichVu;
+import com.example.nhakhoaapp.models.entity.HoaDon;
+import com.example.nhakhoaapp.models.entity.ChiTietHoaDon;
+import com.example.nhakhoaapp.models.entity.BaoHiem;
+import com.example.nhakhoaapp.models.entity.DanhMucDichVu;
+import com.example.nhakhoaapp.models.entity.ChiTietDichVu;
 import com.example.nhakhoaapp.models.dto.AppointmentStats;
-import okhttp3.ResponseBody;
 
 import java.util.List;
 

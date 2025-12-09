@@ -1,4 +1,4 @@
-package com.example.nhakhoaapp.models;
+package com.example.nhakhoaapp.models.entity;
 
 public class Img {
     private String _id;          // MongoDB tự tạo

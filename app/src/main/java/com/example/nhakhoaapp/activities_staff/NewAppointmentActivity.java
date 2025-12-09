@@ -20,11 +20,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.api.ApiService;
-import com.example.nhakhoaapp.models.BenhNhan;
-import com.example.nhakhoaapp.models.DanhMucDichVu;
+import com.example.nhakhoaapp.models.entity.BenhNhan;
+import com.example.nhakhoaapp.models.entity.DanhMucDichVu;
 import com.example.nhakhoaapp.models.request.LichHenRequest; // [QUAN TRỌNG] Dùng Request để gửi
 import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Response để nhận
-import com.example.nhakhoaapp.models.NhanVien;
+import com.example.nhakhoaapp.models.entity.NhanVien;
 // import com.google.gson.JsonSyntaxException; // Bỏ import này nếu không dùng
 
 import java.text.SimpleDateFormat;
