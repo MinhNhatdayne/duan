@@ -6,9 +6,12 @@ import com.example.nhakhoaapp.models.entity.Img;
 import com.example.nhakhoaapp.models.entity.ChiTietToaThuoc;
 import com.example.nhakhoaapp.models.entity.HoSoBenhAn;
 // Import LichHenRequest và LichHenResponse
+import com.example.nhakhoaapp.models.entity.PhanHoi;
+import com.example.nhakhoaapp.models.request.ForgotRequest;
 import com.example.nhakhoaapp.models.request.LichHenRequest;
 import com.example.nhakhoaapp.models.request.LoginRequest;
 import com.example.nhakhoaapp.models.request.RegisterRequest;
+import com.example.nhakhoaapp.models.response.ForgotResponse;
 import com.example.nhakhoaapp.models.response.LichHenResponse;
 import com.example.nhakhoaapp.models.entity.HoaDon;
 import com.example.nhakhoaapp.models.entity.ChiTietHoaDon;
@@ -38,7 +41,10 @@ public interface ApiService {
     // Bạn cần tạo class RegisterRequest (chứa ho_ten, email, password...) tương ứng
     @POST("api/auth/register")
     Call<LoginResponse> register(@Body RegisterRequest request);
-
+    @POST("api/auth/forgot-password") // Kiểm tra lại đường dẫn cho khớp backend của bạn
+    Call<ForgotResponse> forgotPassword(@Body ForgotRequest request);
+    @POST("api/feedback")
+    Call<Void> sendFeedback(@Body PhanHoi phanHoi);
 
     // --- KHU VỰC LỊCH HẸN ---
 

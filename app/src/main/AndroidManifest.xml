@@ -65,8 +65,12 @@
         <activity android:name=".activities.RecordEditorActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity android:name=".activities_staff.ManageActivity"
-            android:exported="false"
-            />
+            android:exported="false"/>
+        <activity android:name=".activities_customer.ChangePasswordActivity" />
+        <activity android:name=".activities_customer.FeedbackActivity" />
+        <activity android:name=".activities.ForgotPasswordActivity" />
+        <activity android:name=".activities_customer.EditProfileActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true">
