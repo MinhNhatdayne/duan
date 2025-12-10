@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class LichHenResponse implements Serializable {
 
@@ -16,6 +19,7 @@ public class LichHenResponse implements Serializable {
     @SerializedName("updatedAt")
     private String updatedAt;
 
+    // Giả sử định dạng từ server là ISO (ví dụ: "2025-12-20T09:30:00.000Z") hoặc "yyyy-MM-dd HH:mm"
     @SerializedName("thoi_gian_hen")
     private String thoi_gian_hen;
 
@@ -26,7 +30,6 @@ public class LichHenResponse implements Serializable {
     private String trang_thai;
 
     // [QUAN TRỌNG] Sử dụng JsonElement để hứng cả Object (đã populate) và String (ID thô)
-    // Giúp App không bị Crash khi server trả về ID thay vì Object
     @SerializedName("id_benh_nhan")
     private JsonElement id_benh_nhan;
 
@@ -34,7 +37,7 @@ public class LichHenResponse implements Serializable {
     private JsonElement id_bac_si;
 
     // ==========================================
-    // INNER CLASSES (Dùng để parse thủ công từ JsonElement)
+    // INNER CLASSES
     // ==========================================
     public static class BenhNhanInfo implements Serializable {
         @SerializedName("_id") private String _id;
@@ -55,6 +58,7 @@ public class LichHenResponse implements Serializable {
     // ==========================================
     // GETTERS CƠ BẢN
     // ==========================================
+    public String getId() { return _id; } // Alias tiện lợi
     public String get_id() { return _id; }
     public String getThoi_gian_hen() { return thoi_gian_hen; }
     public String getLy_do_kham() { return ly_do_kham; }
@@ -62,34 +66,81 @@ public class LichHenResponse implements Serializable {
     public String getCreatedAt() { return createdAt; }
 
     // ==========================================
-    // HELPER METHODS (Xử lý thông minh để lấy Tên)
+    // HELPER METHODS (Xử lý Ngày/Giờ hiển thị)
     // ==========================================
 
     /**
-     * Lấy tên Bệnh nhân an toàn.
-     * - Nếu là Object: Trả về tên thật.
-     * - Nếu là String ID: Trả về chuỗi ID rút gọn.
-     * - Nếu null: Trả về "Không xác định".
+     * Tách lấy NGÀY và format lại thành dd/MM/yyyy
      */
-    public String getTen_benh_nhan() {
+    public String getNgayHenFormatted() {
+        if (thoi_gian_hen == null || thoi_gian_hen.isEmpty()) return "";
         try {
-            if (id_benh_nhan != null && id_benh_nhan.isJsonObject()) {
-                // Parse từ JsonElement sang Object BenhNhanInfo
-                BenhNhanInfo bn = new Gson().fromJson(id_benh_nhan, BenhNhanInfo.class);
-                return bn.getHo_ten();
-            } else if (id_benh_nhan != null && id_benh_nhan.isJsonPrimitive()) {
-                // Trường hợp API trả về String ID (chưa populate)
-                return "ID: " + id_benh_nhan.getAsString().substring(0, 5) + "...";
+            // Trường hợp 1: Chuỗi có chứa chữ T (ISO format: 2023-12-20T09:00...)
+            if (thoi_gian_hen.contains("T")) {
+                String rawDate = thoi_gian_hen.split("T")[0]; // Lấy 2023-12-20
+                return formatToVN(rawDate);
+            }
+            // Trường hợp 2: Chuỗi cách nhau bằng khoảng trắng (2023-12-20 09:00)
+            else if (thoi_gian_hen.contains(" ")) {
+                String rawDate = thoi_gian_hen.split(" ")[0];
+                return formatToVN(rawDate);
             }
         } catch (Exception e) {
-            return "Lỗi dữ liệu";
+            e.printStackTrace();
         }
-        return "Không xác định";
+        return thoi_gian_hen; // Trả về gốc nếu lỗi
     }
 
     /**
-     * Lấy SĐT Bệnh nhân an toàn
+     * Tách lấy GIỜ (HH:mm)
      */
+    public String getGioHenFormatted() {
+        if (thoi_gian_hen == null || thoi_gian_hen.isEmpty()) return "";
+        try {
+            String timePart = "";
+            if (thoi_gian_hen.contains("T")) {
+                timePart = thoi_gian_hen.split("T")[1]; // Lấy phần sau T
+            } else if (thoi_gian_hen.contains(" ")) {
+                timePart = thoi_gian_hen.split(" ")[1]; // Lấy phần sau dấu cách
+            }
+
+            // Cắt lấy 5 ký tự đầu (HH:mm) bỏ phần giây/timezone nếu có
+            if (timePart.length() >= 5) {
+                return timePart.substring(0, 5);
+            }
+            return timePart;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    // Hàm phụ trợ đổi yyyy-MM-dd sang dd-MM-yyyy
+    private String formatToVN(String yyyyMMdd) {
+        try {
+            String[] parts = yyyyMMdd.split("-");
+            if (parts.length == 3) {
+                return parts[2] + "/" + parts[1] + "/" + parts[0];
+            }
+        } catch (Exception e) { }
+        return yyyyMMdd;
+    }
+
+    // ==========================================
+    // HELPER METHODS (Lấy thông tin liên kết)
+    // ==========================================
+
+    public String getTen_benh_nhan() {
+        try {
+            if (id_benh_nhan != null && id_benh_nhan.isJsonObject()) {
+                BenhNhanInfo bn = new Gson().fromJson(id_benh_nhan, BenhNhanInfo.class);
+                return bn.getHo_ten();
+            } else if (id_benh_nhan != null && id_benh_nhan.isJsonPrimitive()) {
+                return "ID: " + id_benh_nhan.getAsString().substring(0, 5) + "...";
+            }
+        } catch (Exception e) { return "Lỗi dữ liệu"; }
+        return "Không xác định";
+    }
+
     public String getSdt_benh_nhan() {
         try {
             if (id_benh_nhan != null && id_benh_nhan.isJsonObject()) {
@@ -100,9 +151,6 @@ public class LichHenResponse implements Serializable {
         return "";
     }
 
-    /**
-     * Lấy tên Bác sĩ an toàn
-     */
     public String getTen_bac_si() {
         try {
             if (id_bac_si != null && id_bac_si.isJsonObject()) {
