@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F7F9FC"
-        tools:context=".activities_staff.ConfirmationActivity">
+        android:background="#F7F9FC">
 
     <!-- Header -->
     <LinearLayout
@@ -37,13 +35,12 @@
                 android:textColor="@android:color/black" />
     </LinearLayout>
 
-    <!-- ScrollView chứa nội dung (Neo giữa Header và Nút bấm) -->
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:padding="16dp"
             app:layout_constraintTop_toBottomOf="@id/header_layout"
-            app:layout_constraintBottom_toTopOf="@id/btn_confirm_booking"
-            android:padding="16dp">
+            app:layout_constraintBottom_toTopOf="@id/btn_confirm_booking">
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -62,9 +59,9 @@
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
                     app:cardCornerRadius="8dp"
-                    app:cardElevation="4dp"
-                    android:layout_marginBottom="24dp">
+                    app:cardElevation="4dp">
 
                 <LinearLayout
                         android:layout_width="match_parent"
@@ -76,31 +73,32 @@
                             android:id="@+id/detail_service"
                             layout="@layout/item_confirmation_detail" />
 
-                    <View style="@style/DividerStyle"
+                    <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:background="#E0E0E0"
-                            android:layout_marginVertical="8dp"/>
+                            android:layout_marginVertical="8dp" />
 
                     <include
                             android:id="@+id/detail_doctor"
                             layout="@layout/item_confirmation_detail" />
 
-                    <View style="@style/DividerStyle"
+                    <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:background="#E0E0E0"
-                            android:layout_marginVertical="8dp"/>
+                            android:layout_marginVertical="8dp" />
 
+                    <!-- 🟦 ĐÃ SỬA: detail_location -> detail_patient -->
                     <include
-                            android:id="@+id/detail_location"
+                            android:id="@+id/detail_patient"
                             layout="@layout/item_confirmation_detail" />
 
-                    <View style="@style/DividerStyle"
+                    <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:background="#E0E0E0"
-                            android:layout_marginVertical="8dp"/>
+                            android:layout_marginVertical="8dp" />
 
                     <include
                             android:id="@+id/detail_time"
@@ -127,11 +125,10 @@
                     android:background="@android:drawable/edit_text"
                     android:hint="Ví dụ: Răng bị ê buốt nhẹ..."
                     android:inputType="textMultiLine" />
-
         </LinearLayout>
     </ScrollView>
 
-    <!-- Nút bấm cố định ở đáy (Không dùng BottomNav) -->
+    <!-- Button xác nhận -->
     <Button
             android:id="@+id/btn_confirm_booking"
             android:layout_width="match_parent"
@@ -140,7 +137,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="@color/primary_blue"
             android:padding="16dp"
             android:layout_margin="16dp"
             app:cornerRadius="8dp"

@@ -36,7 +36,7 @@
             android:name=".activities_customer.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".activities_staff.ConfirmationActivity"
+            android:name=".activities_customer.ConfirmationActivity"
             android:exported="false" />
         <activity
             android:name=".activities_customer.SelectTimeActivity"

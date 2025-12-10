@@ -46,7 +46,6 @@ public class SelectDoctorActivity extends AppCompatActivity {
             return;
         }
 
-        // Ánh xạ View
         imgBackButton = findViewById(R.id.img_back_button);
         tvSelectedService = findViewById(R.id.tv_selected_service);
         rvListDoctors = findViewById(R.id.rv_list_doctors);
@@ -57,20 +56,20 @@ public class SelectDoctorActivity extends AppCompatActivity {
             return;
         }
 
-        // Nhận dữ liệu từ màn trước
         String serviceName = getIntent().getStringExtra("SERVICE_NAME");
+        String patientName = getIntent().getStringExtra("PATIENT_NAME");
+
         tvSelectedService.setText(serviceName != null ? serviceName : "Dịch vụ");
 
-        // Nút back
         imgBackButton.setOnClickListener(v -> finish());
 
-        // Thiết lập RecyclerView
         rvListDoctors.setLayoutManager(new LinearLayoutManager(this));
         listBacSi = new ArrayList<>();
 
         doctorAdapter = new DoctorAdapter(this, listBacSi, doctor -> {
             Intent intent = new Intent(SelectDoctorActivity.this, SelectTimeActivity.class);
             intent.putExtra("SERVICE_NAME", serviceName);
+            intent.putExtra("PATIENT_NAME", patientName);
             intent.putExtra("DOCTOR_NAME", doctor.getHo_ten());
             intent.putExtra("DOCTOR_ID", doctor.get_id());
             startActivity(intent);
