@@ -65,7 +65,7 @@
         <activity android:name=".activities.RecordEditorActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity
-            android:name=".activities_staff.ManageActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true">
 
             <intent-filter>

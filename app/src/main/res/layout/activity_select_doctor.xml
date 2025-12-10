@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -58,7 +59,6 @@
     </LinearLayout>
 
     <!-- THANH TÌM KIẾM -->
-    <!-- Đã sửa background thành màu trắng và thêm elevation để tránh lỗi thiếu file drawable -->
     <EditText
             android:id="@+id/et_search_doctor"
             android:layout_width="match_parent"
@@ -76,8 +76,7 @@
             android:inputType="text"
             android:imeOptions="actionSearch" />
 
-    <!-- DANH SÁCH BÁC SĨ (RECYCLER VIEW) -->
-    <!-- ID: rv_list_doctors (Khớp 100% với Java) -->
+    <!-- DANH SÁCH BÁC SĨ -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list_doctors"
             android:layout_width="match_parent"
@@ -86,18 +85,8 @@
             android:paddingHorizontal="16dp"
             android:clipToPadding="false"
             app:layout_constraintTop_toBottomOf="@id/et_search_doctor"
-            app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- BOTTOM NAVIGATION -->
-    <!-- Nếu menu bị lỗi, App sẽ sập. Đảm bảo file res/menu/bottom_nav_menu.xml tồn tại -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:menu="@menu/bottom_nav_menu"
-            android:background="#FFFFFF"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
