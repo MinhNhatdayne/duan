@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.activities_customer.DashboardActivity;
+import com.example.nhakhoaapp.activities_staff.ManageActivity;
 import com.example.nhakhoaapp.activities_staff.StaffDashboardActivity;
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.models.request.LoginRequest;
@@ -94,7 +95,6 @@ public class LoginActivity extends AppCompatActivity {
                 btnLogin.setEnabled(true);
                 btnLogin.setText("Đăng nhập");
 
-                // Trường hợp HTTP 200 (Thành công về mặt kết nối và logic server)
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
 
@@ -102,42 +102,58 @@ public class LoginActivity extends AppCompatActivity {
                         processRememberMe(email, password);
                         saveUserSession(loginResponse.getData());
 
+                        // === PHẦN CHỈNH SỬA QUAN TRỌNG ===
+
+                        // 1. Lấy role, xử lý null
                         String role = loginResponse.getRole();
                         if (role == null) role = "PATIENT";
 
+                        // 2. Chuẩn hóa chuỗi: Xóa khoảng trắng thừa và Chuyển hết về CHỮ IN HOA
+                        // Để tránh lỗi "Manager" khác "MANAGER"
+                        role = role.trim().toUpperCase();
+
+                        // 3. (DEBUG) Hiện thông báo xem Server thực sự trả về role gì
+                        // Nếu nó hiện "DOCTOR" -> Lỗi do Server gán sai quyền.
+                        // Nếu nó hiện "MANAGER" -> Code Switch chạy đúng.
+                        Toast.makeText(LoginActivity.this, "Role: " + role, Toast.LENGTH_LONG).show();
+
                         Intent intent;
                         switch (role) {
-                            case "MANAGER":
-                            case "DOCTOR":
+                            case "MANAGER": // Quản lý
+                                intent = new Intent(LoginActivity.this, ManageActivity.class);
+                                break;
+
+                            case "DOCTOR":  // Bác sĩ
                                 intent = new Intent(LoginActivity.this, StaffDashboardActivity.class);
                                 break;
-                            case "PATIENT":
-                            default:
+
+                            case "STAFF":   // Nhân viên (Nếu có)
+                                // Bạn có thể trỏ về ManageActivity hoặc StaffDashboard tùy logic
+                                intent = new Intent(LoginActivity.this, StaffDashboardActivity.class);
+                                break;
+
+                            case "PATIENT": // Bệnh nhân
+                            default:        // Mặc định
                                 intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                intent.putExtra("PATIENT_NAME", loginResponse.getData().getHo_ten());
-                                intent.putExtra("PATIENT_ID", loginResponse.getData().get_id());
+                                if (loginResponse.getData() != null) {
+                                    intent.putExtra("PATIENT_NAME", loginResponse.getData().getHo_ten());
+                                    intent.putExtra("PATIENT_ID", loginResponse.getData().get_id());
+                                }
                                 break;
                         }
 
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
+                        // =================================
 
                     } else {
-                        // Server trả về 200 nhưng success: false (Ít gặp với code backend hiện tại của bạn)
                         Toast.makeText(LoginActivity.this, loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                }
-                // Trường hợp HTTP Lỗi (400, 401, 404, 500...)
-                else {
-                    // === ĐÂY LÀ PHẦN ĐÃ SỬA ===
+                } else {
                     if (response.code() == 404 || response.code() == 400 || response.code() == 401) {
-                        // 404: Không tìm thấy email
-                        // 400: Sai mật khẩu
-                        // 401: Không có quyền (Unauthorized)
                         Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Các lỗi khác (500 Server Error, v.v.)
                         Toast.makeText(LoginActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
                     }
                 }

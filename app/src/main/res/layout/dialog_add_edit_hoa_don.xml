@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/etIdBenhNhan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID Bệnh Nhân (ObjectId)" />
+
+    <EditText
+        android:id="@+id/etIdNhanVien"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID Nhân Viên (ObjectId)" />
+
+    <EditText
+        android:id="@+id/etTongTien"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:hint="Tổng tiền" />
+
+    <EditText
+        android:id="@+id/etTrangThai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Trạng thái (Vd: Đã thanh toán)" />
+
+    <EditText
+        android:id="@+id/etPhuongThuc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phương thức (Tiền mặt/CK)" />
+
+</LinearLayout>

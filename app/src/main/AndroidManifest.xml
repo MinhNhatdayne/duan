@@ -66,9 +66,13 @@
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity android:name=".activities_staff.ManageActivity"
             android:exported="false"/>
+        <activity android:name=".activities.CategoryListActivity"/>
+        <activity android:name=".activities.CategoryEditorActivity"/>
         <activity android:name=".activities_customer.ChangePasswordActivity" />
         <activity android:name=".activities_customer.FeedbackActivity" />
         <activity android:name=".activities.ForgotPasswordActivity" />
+        <activity android:name=".activities.QuanLyHoaDonActivity"/>
+        <activity android:name=".activities.ProfileQuanLyActivity" />
         <activity android:name=".activities_customer.EditProfileActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"/>
         <activity

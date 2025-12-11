@@ -7,6 +7,7 @@ import com.example.nhakhoaapp.models.entity.ChiTietToaThuoc;
 import com.example.nhakhoaapp.models.entity.HoSoBenhAn;
 // Import LichHenRequest và LichHenResponse
 import com.example.nhakhoaapp.models.entity.PhanHoi;
+import com.example.nhakhoaapp.models.request.ChangePasswordRequest;
 import com.example.nhakhoaapp.models.request.ForgotRequest;
 import com.example.nhakhoaapp.models.request.LichHenRequest;
 import com.example.nhakhoaapp.models.request.LoginRequest;
@@ -45,6 +46,8 @@ public interface ApiService {
     Call<ForgotResponse> forgotPassword(@Body ForgotRequest request);
     @POST("api/feedback")
     Call<Void> sendFeedback(@Body PhanHoi phanHoi);
+    @POST("api/auth/change-password")
+    Call<Void> changePassword(@Body ChangePasswordRequest request);
 
     // --- KHU VỰC LỊCH HẸN ---
 
