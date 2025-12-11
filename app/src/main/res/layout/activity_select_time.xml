@@ -1,68 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:layout_marginTop="100dp"
-        android:padding="16dp">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
 
-    <!-- HEADER MONTH -->
+    android:padding="16dp">
+
     <LinearLayout
-            android:id="@+id/month_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
 
         <ImageView
-                android:id="@+id/btn_prev_month"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="6dp"
-                android:src="@android:drawable/ic_media_previous" />
+            android:id="@+id/btn_back_screen"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back" />
 
         <TextView
-                android:id="@+id/tv_month_year"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tháng Năm"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="16dp" />
-
-        <ImageView
-                android:id="@+id/btn_next_month"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="6dp"
-                android:src="@android:drawable/ic_media_next" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đặt lịch hẹn"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginStart="16dp"/>
     </LinearLayout>
 
-    <!-- DATE SLOT LIST -->
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDateSlots"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginTop="8dp" />
+    <LinearLayout
+        android:id="@+id/month_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="8dp">
 
-    <!-- TIME SLOT LIST -->
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTimeSlots"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" />
+        <ImageView
+            android:id="@+id/btn_prev_month"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_media_previous" />
 
-    <!-- BUTTON -->
-    <Button
-            android:id="@+id/btn_continue"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_month_year"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tiếp tục"
+            android:text="Tháng Năm"
             android:textSize="18sp"
-            android:paddingVertical="12dp"
-            android:enabled="false"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/primary_blue"
-            android:layout_marginTop="16dp"/>
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp" />
+
+        <ImageView
+            android:id="@+id/btn_next_month"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_media_next" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDateSlots"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="8dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTimeSlots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/btn_continue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiếp tục"
+        android:textSize="18sp"
+        android:paddingVertical="12dp"
+        android:enabled="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#2196F3"
+        android:layout_marginTop="32dp"/>
 </LinearLayout>

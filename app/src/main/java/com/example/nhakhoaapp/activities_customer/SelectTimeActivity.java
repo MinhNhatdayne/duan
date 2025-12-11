@@ -1,5 +1,6 @@
 package com.example.nhakhoaapp.activities_customer;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -29,6 +30,7 @@ public class SelectTimeActivity extends AppCompatActivity {
 
     private RecyclerView rvDateSlots, rvTimeSlots;
     private Button btnContinue;
+    private  ImageView btn_back_screen;
 
     private DateSlotAdapter dateAdapter;
     private TimeSlotAdapter timeAdapter;
@@ -43,6 +45,7 @@ public class SelectTimeActivity extends AppCompatActivity {
 
     private String serviceName, doctorName, doctorId, patientId, patientName;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,11 +62,16 @@ public class SelectTimeActivity extends AppCompatActivity {
         rvDateSlots = findViewById(R.id.rvDateSlots);
         rvTimeSlots = findViewById(R.id.rvTimeSlots);
         btnContinue = findViewById(R.id.btn_continue);
+        btn_back_screen=findViewById(R.id.btn_back_screen);
+
 
         setupDateRecyclerView();
         setupTimeRecyclerView();
         updateContinueButtonState();
 
+        btn_back_screen.setOnClickListener(v -> {
+            finish();
+        });
         btnContinue.setOnClickListener(v -> {
             if (selectedDateSlot == null || selectedTimeSlot == null) {
                 return;
