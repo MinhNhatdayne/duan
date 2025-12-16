@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F5F5F5"
+        tools:context=".activities_staff.StaffProfileActivity">
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_staff"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
+
+            <!-- HEADER XANH + AVATAR -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                <!-- Nền xanh Header -->
+                <View
+                        android:id="@+id/view_header_bg"
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp"
+                        android:background="@color/primary_blue"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:text="Hồ sơ nhân viên"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Card chứa Avatar -->
+                <androidx.cardview.widget.CardView
+                        android:id="@+id/card_avatar"
+                        android:layout_width="110dp"
+                        android:layout_height="110dp"
+                        android:layout_marginTop="100dp"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="55dp"
+                        app:cardElevation="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                            android:id="@+id/img_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="4dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:backgroundTint="#EEEEEE"
+                            android:contentDescription="Avatar"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_student" /> <!-- Đổi icon bác sĩ -->
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- TÊN NHÂN VIÊN -->
+            <TextView
+                    android:id="@+id/tv_user_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Đang tải..."
+                    android:textColor="@android:color/black"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+            <TextView
+                    android:id="@+id/tv_user_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="..."
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+            <!-- CARD 1: THÔNG TIN CHI TIẾT -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Thông tin cá nhân"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <include
+                            android:id="@+id/detail_phone"
+                            layout="@layout/item_profile_detail" />
+
+                    <include
+                            android:id="@+id/detail_dob"
+                            layout="@layout/item_profile_detail" />
+
+<!--                    <include-->
+<!--                            android:id="@+id/detail_gender"-->
+<!--                            layout="@layout/item_profile_detail" />-->
+
+                    <include
+                            android:id="@+id/detail_address"
+                            layout="@layout/item_profile_detail" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- CARD 2: MENU CHỨC NĂNG -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Thiết lập"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="8dp">
+
+                    <include
+                            android:id="@+id/menu_edit_info"
+                            layout="@layout/item_profile_menu" />
+
+                    <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="56dp"
+                            android:background="#F0F0F0"/>
+
+                    <include
+                            android:id="@+id/menu_change_password"
+                            layout="@layout/item_profile_menu" />
+
+                    <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="56dp"
+                            android:background="#F0F0F0" />
+
+                    <include
+                            android:id="@+id/menu_logout"
+                            layout="@layout/item_profile_menu" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- BOTTOM NAVIGATION CỦA STAFF -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_staff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            app:elevation="8dp"
+            app:itemIconTint="@color/primary_blue"
+            app:itemTextColor="@color/primary_blue"
+            app:labelVisibilityMode="labeled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/bottom_nav_menu_staff" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

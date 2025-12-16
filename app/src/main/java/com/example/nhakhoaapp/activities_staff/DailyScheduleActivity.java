@@ -90,6 +90,10 @@ public class DailyScheduleActivity extends AppCompatActivity {
             startActivity(new Intent(this, AppointmentManagerActivity.class));
             overridePendingTransition(0, 0); return true;
         }
+//        else if (id == R.id.nav_staff_profile) {
+//            startActivity(new Intent(this, StaffProfileActivity.class));
+//            overridePendingTransition(0, 0); return true;
+//        }
         return false;
     }
 
