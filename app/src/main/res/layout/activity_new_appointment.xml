@@ -27,7 +27,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-            <!-- 1. THÔNG TIN BỆNH NHÂN (NHẬP TAY) -->
+            <!-- 1. THÔNG TIN BỆNH NHÂN (Giữ nguyên) -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -51,7 +51,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                    <!-- Input Tên Bệnh Nhân -->
                     <EditText
                             android:id="@+id/et_patient_name"
                             android:layout_width="match_parent"
@@ -65,23 +64,47 @@
                             android:textColorHint="#757575"
                             android:textSize="14sp" />
 
-                    <!-- Input Số Điện Thoại -->
-                    <EditText
-                            android:id="@+id/et_patient_phone"
+                    <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_search_white"
-                            android:hint="Số điện thoại liên hệ"
-                            android:inputType="phone"
-                            android:paddingHorizontal="12dp"
-                            android:textColor="@android:color/black"
-                            android:textColorHint="#757575"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
+                        <AutoCompleteTextView
+                                android:id="@+id/actv_patient_phone"
+                                android:layout_width="0dp"
+                                android:layout_height="50dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_search_white"
+                                android:completionThreshold="1"
+                                android:hint="Nhập SĐT để tìm..."
+                                android:inputType="phone"
+                                android:paddingHorizontal="12dp"
+                                android:textColor="@android:color/black"
+                                android:textColorHint="#757575"
+                                android:textSize="14sp" />
+
+                        <CheckBox
+                                android:id="@+id/cb_no_phone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="Guest"
+                                android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="*Gợi ý: Nhập SĐT để chọn bệnh nhân cũ"
+                            android:textSize="11sp"
+                            android:textColor="#888888"
+                            android:layout_marginStart="4dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 2. DỊCH VỤ & BÁC SĨ (DROPDOWN) -->
+            <!-- 2. DỊCH VỤ & BÁC SĨ (Giữ nguyên) -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -119,8 +142,6 @@
                             android:layout_height="50dp"
                             android:layout_marginBottom="12dp"
                             android:background="@drawable/bg_spinner_custom"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="30dp"
                             android:theme="@style/ThemeOverlay.AppCompat.Light" />
 
                     <TextView
@@ -136,14 +157,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:background="@drawable/bg_spinner_custom"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="30dp"
                             android:theme="@style/ThemeOverlay.AppCompat.Light" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 3. THỜI GIAN & GHI CHÚ -->
+            <!-- 3. CHỌN NGÀY & GIỜ (SỬA ĐỔI LỚN TẠI ĐÂY) -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -162,42 +181,81 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="12dp"
-                            android:text="3. Thời gian &amp; Ghi chú"
+                            android:text="3. Chọn Thời gian"
                             android:textColor="#333333"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                    <!-- Input Ngày Giờ (Click mở Dialog) -->
-                    <EditText
-                            android:id="@+id/et_date_time"
+                    <!-- Header Chọn Tháng -->
+                    <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_search_white"
-                            android:clickable="true"
-                            android:drawableStart="@android:drawable/ic_menu_my_calendar"
-                            android:drawablePadding="12dp"
-                            android:drawableTint="@color/primary_blue"
-                            android:focusable="false"
-                            android:hint="Chọn Ngày &amp; Giờ hẹn..."
-                            android:inputType="none"
-                            android:paddingHorizontal="12dp"
-                            android:textColor="@android:color/black"
-                            android:textColorHint="#757575"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/primary_blue"
+                            android:paddingVertical="4dp">
 
+                        <ImageView
+                                android:id="@+id/btn_prev_month"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:padding="8dp"
+                                android:src="@android:drawable/ic_media_previous"
+                                app:tint="@color/white" />
+
+                        <TextView
+                                android:id="@+id/tv_month_year"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="16dp"
+                                android:text="Tháng ..."
+                                android:textStyle="bold"
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
+
+                        <ImageView
+                                android:id="@+id/btn_next_month"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:padding="8dp"
+                                android:src="@android:drawable/ic_media_next"
+                                app:tint="@color/white" />
+                    </LinearLayout>
+
+                    <!-- RecyclerView Chọn Ngày -->
+                    <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvDateSlots"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="80dp" />
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chọn khung giờ trống:"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="8dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"/>
+
+                    <!-- RecyclerView Chọn Giờ -->
+                    <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvTimeSlots"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    <!-- Ghi chú -->
                     <EditText
                             android:id="@+id/et_note"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="16dp"
                             android:background="@drawable/bg_search_white"
                             android:gravity="top"
-                            android:hint="Ghi chú thêm (Triệu chứng...)"
+                            android:hint="Ghi chú thêm..."
                             android:inputType="textMultiLine"
-                            android:minLines="3"
+                            android:minLines="2"
                             android:padding="12dp"
-                            android:textColor="@android:color/black"
-                            android:textColorHint="#757575"
                             android:textSize="14sp" />
 
                 </LinearLayout>
@@ -212,6 +270,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:enabled="false"
                     app:cornerRadius="12dp"
                     app:elevation="4dp" />
 

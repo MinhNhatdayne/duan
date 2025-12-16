@@ -31,6 +31,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -152,6 +153,13 @@ public interface ApiService {
     // [GET] Danh sách hôm nay -> Trả về Response
     @GET("LichHen/today/list") 
     Call<List<LichHenResponse>> getTodayAppointments();
+
+    // 👇 THÊM DÒNG NÀY: Lấy danh sách giờ bận của bác sĩ trong ngày
+    @GET("LichHen/by-doctor/{id}")
+    Call<List<String>> getBusySlots(
+            @Path("id") String doctorId,
+            @Query("date") String date // format yyyy-MM-dd
+    );
 
     // [POST] Tạo mới -> Gửi Request (Chứa String ID)
     // Response trả về có thể là Object vừa tạo, dùng LichHenResponse để hứng ID mới nếu cần
