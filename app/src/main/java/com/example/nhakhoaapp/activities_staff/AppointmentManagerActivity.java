@@ -1,9 +1,15 @@
 package com.example.nhakhoaapp.activities_staff;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,13 +22,18 @@ import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.SingleAppointmentAdapter;
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.api.ApiService;
-import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Model Response
-import com.example.nhakhoaapp.models_adapter.AppointmentHeader;
+import com.example.nhakhoaapp.models.request.LichHenRequest;
+import com.example.nhakhoaapp.models.response.LichHenResponse;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,126 +43,314 @@ public class AppointmentManagerActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private Button btnNewAppointment;
-    private TextView tvTitle;
     private BottomNavigationView bottomNavigationView;
 
+    private SingleAppointmentAdapter adapter;
+    private List<Object> listItems = new ArrayList<>();
     private ApiService apiService;
+
+    // Biến tạm để lưu thời gian khi đang Edit trong Dialog
+    private Calendar tempCalendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appointment_manager);
 
-        // Ánh xạ Views
-        rvAppointments = findViewById(R.id.recycler_appointments);
-        btnNewAppointment = findViewById(R.id.btn_new_appointment);
-        tvTitle = findViewById(R.id.tv_title);
-        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
-
-        tvTitle.setText("Quản lý cuộc hẹn");
-
-        // Khởi tạo API & RecyclerView
         apiService = ApiClient.getApiService();
-        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
 
-        // 1. [FIX LỖI NAV] Cài đặt trạng thái BottomNav TRƯỚC KHI gán listener
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_staff_appointments);
-            bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
-        }
-
-        // Tải dữ liệu lần đầu
-        loadAppointments();
-
-        btnNewAppointment.setOnClickListener(v -> {
-            Intent intent = new Intent(AppointmentManagerActivity.this, NewAppointmentActivity.class);
-            startActivity(intent);
-        });
+        initViews();
+        setupRecyclerView();
+        setupListeners();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Load lại danh sách khi quay lại màn hình này
         loadAppointments();
-
-        // [FIX LỖI NAV] KHÔNG gọi setSelectedItemId ở đây nữa để tránh kích hoạt lại listener
+        if (bottomNavigationView != null)
+            bottomNavigationView.setSelectedItemId(R.id.nav_staff_appointments);
     }
 
-    private boolean handleStaffNavigation(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        // Nếu bấm vào chính tab hiện tại thì không làm gì
-        if (id == R.id.nav_staff_appointments) {
-            return true;
-        }
-
-        if (id == R.id.nav_staff_home) {
-            startActivity(new Intent(this, StaffDashboardActivity.class));
-            overridePendingTransition(0, 0);
-            return true;
-        } else if (id == R.id.nav_staff_schedule) {
-            startActivity(new Intent(this, DailyScheduleActivity.class));
-            overridePendingTransition(0, 0);
-            return true;
-        }
-
-        return false;
+    private void initViews() {
+        rvAppointments = findViewById(R.id.recycler_appointments);
+        btnNewAppointment = findViewById(R.id.btn_new_appointment);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
     }
 
-    /**
-     * Gọi API getAllLichHen và hứng dữ liệu bằng LichHenResponse
-     */
+    private void setupListeners() {
+        btnNewAppointment.setOnClickListener(v -> {
+            Intent intent = new Intent(AppointmentManagerActivity.this, NewAppointmentActivity.class);
+            startActivity(intent);
+        });
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_staff_home) {
+                startActivity(new Intent(this, StaffDashboardActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            } else if (id == R.id.nav_staff_schedule) {
+                startActivity(new Intent(this, DailyScheduleActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            } else if (id == R.id.nav_staff_appointments) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void setupRecyclerView() {
+        rvAppointments.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new SingleAppointmentAdapter(this, listItems, (item, view) -> {
+            showPopupMenu(item, view);
+        });
+        rvAppointments.setAdapter(adapter);
+    }
+
     private void loadAppointments() {
-        // Sử dụng Call<List<LichHenResponse>> thay vì Call<List<LichHen>>
         apiService.getAllLichHen().enqueue(new Callback<List<LichHenResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<LichHenResponse>> call, @NonNull Response<List<LichHenResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<LichHenResponse> fetchedAppointments = response.body();
-
-                    // Đảo ngược để cái mới nhất lên đầu
-                    Collections.reverse(fetchedAppointments);
-
-                    populateRecyclerView(fetchedAppointments);
-                    // Bỏ Toast mỗi lần load để đỡ phiền user
+                    processData(response.body());
                 } else {
-                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi tải dữ liệu: " + response.code(), Toast.LENGTH_SHORT).show();
-                    populateRecyclerView(new ArrayList<>());
+                    Toast.makeText(AppointmentManagerActivity.this, "Không có lịch hẹn", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<LichHenResponse>> call, @NonNull Throwable t) {
-                Toast.makeText(AppointmentManagerActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                populateRecyclerView(new ArrayList<>());
+                Toast.makeText(AppointmentManagerActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**
-     * Xử lý danh sách LichHenResponse và đưa vào Adapter
-     */
-    private void populateRecyclerView(List<LichHenResponse> fetchedAppointments) {
-        List<Object> combinedList = createCombinedListWithHeaders(fetchedAppointments);
-        SingleAppointmentAdapter adapter = new SingleAppointmentAdapter(this, combinedList);
-        rvAppointments.setAdapter(adapter);
+    private void processData(List<LichHenResponse> rawList) {
+        listItems.clear();
+        try {
+            Collections.sort(rawList, (o1, o2) -> {
+                if (o1.getThoi_gian_hen() == null || o2.getThoi_gian_hen() == null) return 0;
+                return o2.getThoi_gian_hen().compareTo(o1.getThoi_gian_hen());
+            });
+        } catch (Exception e) { e.printStackTrace(); }
+        listItems.addAll(rawList);
+        adapter.notifyDataSetChanged();
     }
 
-    /**
-     * Chuyển đổi List<LichHenResponse> thành List<Object> có Header
-     */
-    private List<Object> createCombinedListWithHeaders(List<LichHenResponse> appointments) {
-        List<Object> list = new ArrayList<>();
+    // --- MENU 3 CHẤM ---
+    private void showPopupMenu(LichHenResponse item, View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.getMenu().add(0, 0, 0, "Sửa thông tin");
+        popup.getMenu().add(0, 1, 1, "Cập nhật trạng thái");
+        popup.getMenu().add(0, 2, 2, "Xóa lịch hẹn");
 
-        if (appointments == null || appointments.isEmpty()) {
-            list.add(new AppointmentHeader("Chưa có lịch hẹn nào."));
-            return list;
+        popup.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case 0:
+                    showEditDialog(item); // Gọi dialog sửa
+                    return true;
+                case 1:
+                    showUpdateStatusDialog(item);
+                    return true;
+                case 2:
+                    showDeleteConfirmation(item);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popup.show();
+    }
+
+    // ==========================================
+    // 1. CHỨC NĂNG SỬA THÔNG TIN (DIALOG)
+    // ==========================================
+    private void showEditDialog(LichHenResponse item) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_appointment, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+
+        // Ánh xạ View trong Dialog
+        TextView tvDate = view.findViewById(R.id.tv_edit_date);
+        TextView tvTime = view.findViewById(R.id.tv_edit_time);
+        EditText etReason = view.findViewById(R.id.et_edit_reason);
+        Button btnSave = view.findViewById(R.id.btn_save_edit);
+        Button btnCancel = view.findViewById(R.id.btn_cancel_edit);
+
+        // Parse thời gian cũ để hiển thị và lưu vào tempCalendar
+        parseIsoToCalendar(item.getThoi_gian_hen(), tempCalendar);
+
+        // Hiển thị dữ liệu cũ
+        updateDialogDateTimeDisplay(tvDate, tvTime);
+        etReason.setText(item.getLy_do_kham());
+
+        // Sự kiện chọn Ngày
+        tvDate.setOnClickListener(v -> {
+            new DatePickerDialog(this, (view1, year, month, dayOfMonth) -> {
+                tempCalendar.set(Calendar.YEAR, year);
+                tempCalendar.set(Calendar.MONTH, month);
+                tempCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateDialogDateTimeDisplay(tvDate, tvTime);
+            }, tempCalendar.get(Calendar.YEAR), tempCalendar.get(Calendar.MONTH), tempCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+
+        // Sự kiện chọn Giờ
+        tvTime.setOnClickListener(v -> {
+            new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
+                tempCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                tempCalendar.set(Calendar.MINUTE, minute);
+                tempCalendar.set(Calendar.SECOND, 0); // Reset giây
+                updateDialogDateTimeDisplay(tvDate, tvTime);
+            }, tempCalendar.get(Calendar.HOUR_OF_DAY), tempCalendar.get(Calendar.MINUTE), true).show();
+        });
+
+        // Sự kiện Lưu
+        btnSave.setOnClickListener(v -> {
+            String newReason = etReason.getText().toString().trim();
+            // Convert Calendar về ISO String để gửi API
+            String newIsoTime = getIsoStringFromCalendar(tempCalendar);
+            
+            // Gọi API Update
+            updateAppointmentInfo(item, newIsoTime, newReason, dialog);
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void updateAppointmentInfo(LichHenResponse item, String newIsoTime, String newReason, AlertDialog dialog) {
+        LichHenRequest request = new LichHenRequest();
+        // Lấy lại ID cũ (quan trọng)
+        request.setId_benh_nhan(item.getRawBenhNhanId()); 
+        request.setId_bac_si(item.getRawBacSiId());
+        
+        // Cập nhật thông tin mới
+        request.setThoi_gian_hen(newIsoTime);
+        request.setLy_do_kham(newReason);
+        request.setTrang_thai(item.getTrang_thai()); // Giữ nguyên trạng thái
+
+        apiService.updateLichHen(item.get_id(), request).enqueue(new Callback<LichHenResponse>() {
+            @Override
+            public void onResponse(Call<LichHenResponse> call, Response<LichHenResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(AppointmentManagerActivity.this, "Đã sửa thành công!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    loadAppointments(); // Load lại list
+                } else {
+                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<LichHenResponse> call, Throwable t) {
+                Toast.makeText(AppointmentManagerActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Helper: Hiển thị text ngày giờ lên Dialog
+    private void updateDialogDateTimeDisplay(TextView tvDate, TextView tvTime) {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        tvDate.setText(sdfDate.format(tempCalendar.getTime()));
+        tvTime.setText(sdfTime.format(tempCalendar.getTime()));
+    }
+
+    // Helper: Convert ISO String -> Calendar
+    private void parseIsoToCalendar(String isoDate, Calendar cal) {
+        if (isoDate == null) return;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = sdf.parse(isoDate);
+            if (date != null) cal.setTime(date);
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // Helper: Convert Calendar -> ISO String
+    private String getIsoStringFromCalendar(Calendar cal) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(cal.getTime());
+    }
+
+    // ==========================================
+    // 2. CHỨC NĂNG ĐỔI TRẠNG THÁI
+    // ==========================================
+    private void showUpdateStatusDialog(LichHenResponse item) {
+        String[] statuses = {"ChoXacNhan", "DaXacNhan", "DaKham", "Huy"};
+        String[] displayStatuses = {"Chờ xác nhận", "Đã xác nhận", "Hoàn thành", "Hủy lịch"};
+
+        int checkedItem = -1;
+        for (int i = 0; i < statuses.length; i++) {
+            if (statuses[i].equals(item.getTrang_thai())) { checkedItem = i; break; }
         }
 
-        list.add(new AppointmentHeader("Danh sách Lịch hẹn (" + appointments.size() + ")"));
-        list.addAll(appointments);
+        new AlertDialog.Builder(this)
+                .setTitle("Cập nhật trạng thái")
+                .setSingleChoiceItems(displayStatuses, checkedItem, (dialog, which) -> {
+                    updateStatusOnly(item, statuses[which]);
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Đóng", null)
+                .show();
+    }
 
-        return list;
+    private void updateStatusOnly(LichHenResponse item, String newStatus) {
+        LichHenRequest request = new LichHenRequest();
+        request.setId_benh_nhan(item.getRawBenhNhanId());
+        request.setId_bac_si(item.getRawBacSiId());
+        request.setThoi_gian_hen(item.getThoi_gian_hen());
+        request.setLy_do_kham(item.getLy_do_kham());
+        request.setTrang_thai(newStatus); // Chỉ đổi cái này
+
+        apiService.updateLichHen(item.get_id(), request).enqueue(new Callback<LichHenResponse>() {
+            @Override
+            public void onResponse(Call<LichHenResponse> call, Response<LichHenResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(AppointmentManagerActivity.this, "Đã cập nhật trạng thái!", Toast.LENGTH_SHORT).show();
+                    loadAppointments();
+                } else {
+                    Toast.makeText(AppointmentManagerActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<LichHenResponse> call, Throwable t) {}
+        });
+    }
+
+    // ==========================================
+    // 3. CHỨC NĂNG XÓA
+    // ==========================================
+    private void showDeleteConfirmation(LichHenResponse item) {
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận xóa")
+                .setMessage("Bạn có chắc muốn xóa lịch hẹn này?")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteAppointment(item.get_id()))
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void deleteAppointment(String id) {
+        apiService.deleteLichHen(id).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(AppointmentManagerActivity.this, "Đã xóa!", Toast.LENGTH_SHORT).show();
+                    loadAppointments();
+                } else {
+                    Toast.makeText(AppointmentManagerActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AppointmentManagerActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

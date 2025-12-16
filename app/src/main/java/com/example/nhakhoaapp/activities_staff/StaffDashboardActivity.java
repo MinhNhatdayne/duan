@@ -63,8 +63,7 @@ public class StaffDashboardActivity extends AppCompatActivity {
             Toast.makeText(this, "Mở màn hình thông báo hệ thống", Toast.LENGTH_SHORT).show());
             
         findViewById(R.id.btn_view_schedule).setOnClickListener(v -> 
-            // Nút "Xem chi tiết Lịch hẹn" trong CardView -> Chuyển sang AppointmentManagerActivity
-            startActivity(new Intent(this, AppointmentManagerActivity.class))
+            startActivity(new Intent(this, DailyScheduleActivity.class))
         );
             
         // 5. Cập nhật dữ liệu động (Gọi API)

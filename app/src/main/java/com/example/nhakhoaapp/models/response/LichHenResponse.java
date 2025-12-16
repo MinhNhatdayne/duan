@@ -65,6 +65,7 @@ public class LichHenResponse implements Serializable {
     public String getTrang_thai() { return trang_thai; }
     public String getCreatedAt() { return createdAt; }
 
+
     // ==========================================
     // HELPER METHODS (Xử lý Ngày/Giờ hiển thị)
     // ==========================================
@@ -126,7 +127,7 @@ public class LichHenResponse implements Serializable {
     }
 
     // ==========================================
-    // HELPER METHODS (Lấy thông tin liên kết)
+    // HELPER METHODS (Lấy thông tin liên kết hiển thị)
     // ==========================================
 
     public String getTen_benh_nhan() {
@@ -161,5 +162,44 @@ public class LichHenResponse implements Serializable {
             }
         } catch (Exception e) { return "Lỗi dữ liệu"; }
         return "Chưa phân công";
+    }
+
+    // ==========================================
+    // [QUAN TRỌNG] HELPER METHODS CHO UPDATE/PUT
+    // Lấy ID gốc (String) để gửi lên Server
+    // ==========================================
+
+    public String getRawBenhNhanId() {
+        if (id_benh_nhan == null) return null;
+        try {
+            // Nếu là Object (đã populate), lấy field "_id" bên trong
+            if (id_benh_nhan.isJsonObject()) {
+                JsonElement idElement = id_benh_nhan.getAsJsonObject().get("_id");
+                return idElement != null ? idElement.getAsString() : null;
+            }
+            // Nếu là Primitive (String ID), lấy trực tiếp
+            else if (id_benh_nhan.isJsonPrimitive()) {
+                return id_benh_nhan.getAsString();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    public String getRawBacSiId() {
+        if (id_bac_si == null) return null;
+        try {
+            if (id_bac_si.isJsonObject()) {
+                JsonElement idElement = id_bac_si.getAsJsonObject().get("_id");
+                return idElement != null ? idElement.getAsString() : null;
+            }
+            else if (id_bac_si.isJsonPrimitive()) {
+                return id_bac_si.getAsString();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 }

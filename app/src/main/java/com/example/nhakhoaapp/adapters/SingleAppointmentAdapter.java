@@ -31,9 +31,17 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private Context context;
     private List<Object> listItems;
 
-    public SingleAppointmentAdapter(Context context, List<Object> listItems) {
+    // Interface để bắn sự kiện click nút "3 chấm" ra Activity
+    private OnActionClickListener listener;
+
+    public interface OnActionClickListener {
+        void onMoreActionClick(LichHenResponse item, View view);
+    }
+
+    public SingleAppointmentAdapter(Context context, List<Object> listItems, OnActionClickListener listener) {
         this.context = context;
         this.listItems = listItems;
+        this.listener = listener;
     }
 
     @Override
@@ -52,6 +60,7 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
             View view = LayoutInflater.from(context).inflate(R.layout.item_appointment_header, parent, false);
             return new HeaderViewHolder(view);
         } else {
+            // Sử dụng layout item_appointment_staff (đã cập nhật XML)
             View view = LayoutInflater.from(context).inflate(R.layout.item_appointment_staff, parent, false);
             return new ItemViewHolder(view);
         }
@@ -66,24 +75,58 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
             LichHenResponse item = (LichHenResponse) listItems.get(position);
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
-            // [ĐÃ SỬA] Gọi đúng tên hàm trong Model LichHenResponse
-
             // 1. Tên Bệnh nhân
-            itemHolder.tvPatientName.setText(item.getTen_benh_nhan()); // Cũ: getTenBenhNhanDisplay()
+            itemHolder.tvPatientName.setText(item.getTen_benh_nhan());
 
-            // 2. Tên Bác sĩ
-            itemHolder.tvDoctorName.setText("BS. " + item.getTen_bac_si()); // Cũ: getTenBacSiDisplay()
+            // 2. [MỚI] Số điện thoại (Xử lý GUEST_)
+            String sdt = item.getSdt_benh_nhan();
+            if (sdt != null && sdt.startsWith("GUEST_")) {
+                itemHolder.tvPatientPhone.setText("Khách vãng lai (Không SĐT)");
+            } else {
+                itemHolder.tvPatientPhone.setText(sdt != null ? sdt : "Chưa cập nhật");
+            }
 
-            // 3. Dịch vụ / Lý do khám
-            itemHolder.tvServiceContent.setText(item.getLy_do_kham()); // Cũ: getLyDoKham()
+            // 3. Tên Bác sĩ
+            String tenBacSi = item.getTen_bac_si();
+            itemHolder.tvDoctorName.setText(tenBacSi != null ? "BS. " + tenBacSi : "Chưa phân công");
 
-            // 4. Thời gian
-            String timeString = formatTimeOnly(item.getThoi_gian_hen()); // Cũ: getThoiGianHen()
-            itemHolder.tvTime.setText(timeString);
+            // 4. [MỚI] Xử lý tách Dịch vụ và Ghi chú
+            String fullReason = item.getLy_do_kham();
+            if (fullReason != null && !fullReason.isEmpty()) {
+                if (fullReason.contains(" - Note: ")) {
+                    // Trường hợp có cả Dịch vụ và Note
+                    String[] parts = fullReason.split(" - Note: ");
+                    itemHolder.tvServiceContent.setText(parts[0]); // Phần trước là Dịch vụ
 
-            // 5. Trạng thái & Màu sắc
-            String status = item.getTrang_thai(); // Cũ: getTrangThai()
-            updateStatusUI(itemHolder, status);
+                    itemHolder.tvNote.setText("Note: " + parts[1]); // Phần sau là Ghi chú
+                    itemHolder.layoutNote.setVisibility(View.VISIBLE); // Hiện hàng ghi chú
+                } else if (fullReason.startsWith("Note: ")) {
+                    // Trường hợp chỉ có Note
+                    itemHolder.tvServiceContent.setText("Dịch vụ: Không có");
+                    itemHolder.tvNote.setText(fullReason);
+                    itemHolder.layoutNote.setVisibility(View.VISIBLE);
+                } else {
+                    // Trường hợp chỉ có Dịch vụ (không có note)
+                    itemHolder.tvServiceContent.setText(fullReason);
+                    itemHolder.layoutNote.setVisibility(View.GONE); // Ẩn hàng ghi chú đi
+                }
+            } else {
+                itemHolder.tvServiceContent.setText("Khám tổng quát");
+                itemHolder.layoutNote.setVisibility(View.GONE);
+            }
+
+            // 5. Thời gian
+            itemHolder.tvTime.setText(formatTimeOnly(item.getThoi_gian_hen()));
+
+            // 6. Trạng thái & Màu sắc
+            updateStatusUI(itemHolder, item.getTrang_thai());
+
+            // 7. Xử lý sự kiện click vào nút 3 chấm
+            itemHolder.btnMoreAction.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onMoreActionClick(item, itemHolder.btnMoreAction);
+                }
+            });
         }
     }
 
@@ -92,31 +135,36 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
         return listItems != null ? listItems.size() : 0;
     }
 
-    // Helper: Định dạng màu sắc trạng thái
+    // --- CÁC HÀM HELPER ---
+
     private void updateStatusUI(ItemViewHolder holder, String status) {
-        // Kiểm tra null để tránh crash
         if (status == null) status = "";
 
         String displayStatus = status;
         int textColor = Color.GRAY;
         int bgColor = Color.parseColor("#F5F5F5");
 
-        if ("ChoXacNhan".equals(status)) {
-            displayStatus = "Chờ xác nhận";
-            textColor = Color.parseColor("#F57C00");
-            bgColor = Color.parseColor("#FFF3E0");
-        } else if ("DaXacNhan".equals(status) || "ChoKham".equals(status)) {
-            displayStatus = "Chờ khám";
-            textColor = Color.parseColor("#1976D2");
-            bgColor = Color.parseColor("#E3F2FD");
-        } else if ("HoanThanh".equals(status)) {
-            displayStatus = "Hoàn thành";
-            textColor = Color.parseColor("#388E3C");
-            bgColor = Color.parseColor("#E8F5E9");
-        } else if ("Huy".equals(status)) {
-            displayStatus = "Đã hủy";
-            textColor = Color.RED;
-            bgColor = Color.parseColor("#FFEBEE");
+        switch (status) {
+            case "ChoXacNhan":
+                displayStatus = "Chờ xác nhận";
+                textColor = Color.parseColor("#E65100"); // Cam đậm
+                bgColor = Color.parseColor("#FFF3E0");   // Cam nhạt
+                break;
+            case "DaXacNhan":
+                displayStatus = "Đã xác nhận";
+                textColor = Color.parseColor("#1B5E20"); // Xanh lá đậm
+                bgColor = Color.parseColor("#E8F5E9");   // Xanh lá nhạt
+                break;
+            case "DaKham":
+                displayStatus = "Đã khám";
+                textColor = Color.parseColor("#0D47A1"); // Xanh dương đậm
+                bgColor = Color.parseColor("#E3F2FD");   // Xanh dương nhạt
+                break;
+            case "Huy":
+                displayStatus = "Đã hủy";
+                textColor = Color.parseColor("#B71C1C"); // Đỏ đậm
+                bgColor = Color.parseColor("#FFEBEE");   // Đỏ nhạt
+                break;
         }
 
         holder.tvStatus.setText(displayStatus);
@@ -124,19 +172,21 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
         holder.cardStatusBadge.setCardBackgroundColor(bgColor);
     }
 
-    // Helper: Lấy HH:mm
     private String formatTimeOnly(String isoDate) {
-        if (isoDate == null) return "--:--";
+        if (isoDate == null || isoDate.isEmpty()) return "--:--";
         try {
-            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
             input.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date date = input.parse(isoDate);
+
             SimpleDateFormat output = new SimpleDateFormat("HH:mm", Locale.getDefault());
             return output.format(date);
         } catch (ParseException e) {
             return "00:00";
         }
     }
+
+    // --- VIEWHOLDERS ---
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvHeaderTitle;
@@ -147,17 +197,26 @@ public class SingleAppointmentAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTime, tvPatientName, tvStatus, tvServiceContent, tvDoctorName;
+        TextView tvTime, tvPatientName, tvPatientPhone, tvStatus, tvServiceContent, tvDoctorName, tvNote;
+        View layoutNote; // Để ẩn hiện dòng ghi chú
         CardView cardStatusBadge;
         ImageView btnMoreAction;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Ánh xạ View theo ID trong XML item_appointment_staff
             tvTime = itemView.findViewById(R.id.tv_time);
             tvPatientName = itemView.findViewById(R.id.tv_patient_name);
+            tvPatientPhone = itemView.findViewById(R.id.tv_patient_phone); // [MỚI]
+
             tvStatus = itemView.findViewById(R.id.tv_status);
             cardStatusBadge = itemView.findViewById(R.id.card_status_badge);
+
             tvServiceContent = itemView.findViewById(R.id.tv_service_content);
+
+            layoutNote = itemView.findViewById(R.id.layout_note);          // [MỚI]
+            tvNote = itemView.findViewById(R.id.tv_appointment_note);      // [MỚI]
+
             tvDoctorName = itemView.findViewById(R.id.tv_doctor_name);
             btnMoreAction = itemView.findViewById(R.id.btn_more_action);
         }

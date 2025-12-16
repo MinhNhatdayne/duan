@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
@@ -16,10 +15,10 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <!-- CỘT 1: THỜI GIAN (Nền xanh nhạt) -->
+        <!-- CỘT 1: THỜI GIAN -->
         <LinearLayout
                 android:layout_width="80dp"
                 android:layout_height="match_parent"
@@ -36,17 +35,8 @@
                     android:textColor="@color/primary_blue"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AM"
-                    android:textColor="@color/primary_blue"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- ĐƯỜNG KẺ DỌC -->
         <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
@@ -79,7 +69,6 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
-                <!-- Badge Trạng thái (Dùng CardView nhỏ làm nền) -->
                 <androidx.cardview.widget.CardView
                         android:id="@+id/card_status_badge"
                         android:layout_width="wrap_content"
@@ -101,7 +90,31 @@
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Dịch vụ / Lý do khám -->
+            <!-- [MỚI] HÀNG: SỐ ĐIỆN THOẠI -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+
+                <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@android:drawable/ic_menu_call"
+                        app:tint="#009688" /> <!-- Màu xanh ngọc -->
+
+                <TextView
+                        android:id="@+id/tv_patient_phone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0987654321"
+                        android:textColor="#009688"
+                        android:textSize="13sp"
+                        android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- HÀNG 1: DỊCH VỤ -->
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -113,7 +126,7 @@
                         android:layout_height="14dp"
                         android:layout_marginEnd="6dp"
                         android:src="@android:drawable/ic_menu_edit"
-                        app:tint="#757575" />
+                        app:tint="#1976D2" />
 
                 <TextView
                         android:id="@+id/tv_service_content"
@@ -121,16 +134,44 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="Tái khám chỉnh nha"
-                        android:textColor="#757575"
+                        android:text="Dịch vụ: Nhổ răng"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
                         android:textSize="13sp" />
             </LinearLayout>
 
-            <!-- Bác sĩ phụ trách (Optional - Nếu staff cần biết ai khám) -->
+            <!-- HÀNG 2: GHI CHÚ -->
+            <LinearLayout
+                    android:id="@+id/layout_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical">
+
+                <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="#FF9800" />
+
+                <TextView
+                        android:id="@+id/tv_appointment_note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="Note: Bệnh nhân đau nhiều"
+                        android:textColor="#757575"
+                        android:textSize="13sp"
+                        android:textStyle="italic"/>
+            </LinearLayout>
+
+            <!-- HÀNG 3: BÁC SĨ -->
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:gravity="center_vertical">
 
                 <ImageView
@@ -147,13 +188,13 @@
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="BS. Đoàn Hồng Lê"
-                        android:textColor="#757575"
+                        android:textColor="#555555"
                         android:textSize="13sp" />
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Icon More (Tùy chọn thao tác) -->
+        <!-- Icon More -->
         <ImageView
                 android:id="@+id/btn_more_action"
                 android:layout_width="24dp"
