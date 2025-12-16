@@ -3,12 +3,16 @@ package com.example.nhakhoaapp.activities_staff;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView; // [QUAN TRỌNG]
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -22,10 +26,9 @@ import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.api.ApiService;
 import com.example.nhakhoaapp.models.entity.BenhNhan;
 import com.example.nhakhoaapp.models.entity.DanhMucDichVu;
-import com.example.nhakhoaapp.models.request.LichHenRequest; // [QUAN TRỌNG] Dùng Request để gửi
-import com.example.nhakhoaapp.models.response.LichHenResponse; // [QUAN TRỌNG] Dùng Response để nhận
+import com.example.nhakhoaapp.models.request.LichHenRequest;
+import com.example.nhakhoaapp.models.response.LichHenResponse;
 import com.example.nhakhoaapp.models.entity.NhanVien;
-// import com.google.gson.JsonSyntaxException; // Bỏ import này nếu không dùng
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +43,9 @@ import retrofit2.Response;
 public class NewAppointmentActivity extends AppCompatActivity {
 
     // Views
-    private EditText etPatientName, etPatientPhone, etNote, etDateTime;
+    private EditText etPatientName, etNote, etDateTime;
+    private AutoCompleteTextView actvPatientPhone; // [ĐỔI] EditText -> AutoCompleteTextView
+    private CheckBox cbNoPhone;
     private Spinner spinnerService, spinnerDoctor;
     private Button btnConfirmAppointment;
 
@@ -48,15 +53,22 @@ public class NewAppointmentActivity extends AppCompatActivity {
     private ApiService apiService;
     private List<DanhMucDichVu> serviceList = new ArrayList<>();
     private List<NhanVien> doctorList = new ArrayList<>();
+    
+    // [MỚI] Danh sách bệnh nhân để gợi ý
+    private List<BenhNhan> allPatientsList = new ArrayList<>();
+    private List<String> patientPhoneList = new ArrayList<>();
 
     // Selected Data
     private String selectedServiceId = null;
     private String selectedServiceName = null;
     private String selectedDoctorId = null;
+    
+    // [MỚI] ID của bệnh nhân nếu chọn từ gợi ý AutoComplete
+    private String preSelectedPatientId = null; 
 
     // Date Time Handling
     private final Calendar calendar = Calendar.getInstance();
-    private String selectedIsoDateTime = null; // Chuỗi ISO gửi lên API
+    private String selectedIsoDateTime = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +79,12 @@ public class NewAppointmentActivity extends AppCompatActivity {
 
         setupToolbar();
         initViews();
-
-        // Khởi tạo Adapter rỗng trước
         setupEmptySpinners();
 
-        // Gọi API lấy dữ liệu đổ vào 2 Spinner
+        // Load dữ liệu
         fetchServices();
         fetchDoctors();
+        fetchPatientsForAutoComplete(); // [MỚI] Load danh sách bệnh nhân để gợi ý
 
         setupEvents();
     }
@@ -89,160 +100,216 @@ public class NewAppointmentActivity extends AppCompatActivity {
 
     private void initViews() {
         etPatientName = findViewById(R.id.et_patient_name);
-        etPatientPhone = findViewById(R.id.et_patient_phone);
         etNote = findViewById(R.id.et_note);
         etDateTime = findViewById(R.id.et_date_time);
+        
+        // [MỚI] AutoCompleteTextView
+        actvPatientPhone = findViewById(R.id.actv_patient_phone);
+        cbNoPhone = findViewById(R.id.cb_no_phone);
 
         spinnerService = findViewById(R.id.spinner_service);
         spinnerDoctor = findViewById(R.id.spinner_doctor);
-
         btnConfirmAppointment = findViewById(R.id.btn_confirm_appointment);
     }
 
     private void setupEmptySpinners() {
-        List<String> loadingList = new ArrayList<>();
-        loadingList.add("Đang tải dữ liệu...");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loadingList);
+        // Tạo adapter rỗng để tránh lỗi null khi chưa load xong
+        List<String> emptyList = new ArrayList<>();
+        emptyList.add("Đang tải...");
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, emptyList);
         spinnerService.setAdapter(adapter);
         spinnerDoctor.setAdapter(adapter);
     }
-
-    // --- API 1: Lấy danh sách Dịch vụ ---
-    private void fetchServices() {
-        apiService.getAllDanhMucDichVu().enqueue(new Callback<List<DanhMucDichVu>>() {
+    
+    // --- [MỚI] HÀM LOAD BỆNH NHÂN ĐỂ GỢI Ý ---
+    private void fetchPatientsForAutoComplete() {
+        apiService.getAllBenhNhan().enqueue(new Callback<List<BenhNhan>>() {
             @Override
-            public void onResponse(@NonNull Call<List<DanhMucDichVu>> call, @NonNull Response<List<DanhMucDichVu>> response) {
-                List<String> names = new ArrayList<>();
-                names.add("-- Chọn Dịch vụ --");
-
+            public void onResponse(@NonNull Call<List<BenhNhan>> call, @NonNull Response<List<BenhNhan>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    serviceList = response.body();
-                    for (DanhMucDichVu s : serviceList) {
-                        names.add(s.getTen_dich_vu());
+                    allPatientsList = response.body();
+                    patientPhoneList.clear();
+                    
+                    for (BenhNhan bn : allPatientsList) {
+                        // Chỉ thêm những người có SĐT thực (không phải null, ko phải chuỗi rỗng)
+                        if (bn.getSo_dien_thoai() != null && !bn.getSo_dien_thoai().isEmpty() && !bn.getSo_dien_thoai().startsWith("GUEST_")) {
+                            patientPhoneList.add(bn.getSo_dien_thoai());
+                        }
                     }
-                } else {
-                    names.add("Không có dịch vụ nào");
+
+                    // Cài đặt Adapter cho AutoCompleteTextView
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            NewAppointmentActivity.this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            patientPhoneList
+                    );
+                    actvPatientPhone.setAdapter(adapter);
                 }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(NewAppointmentActivity.this,
-                        android.R.layout.simple_spinner_dropdown_item, names);
-                spinnerService.setAdapter(adapter);
             }
-
             @Override
-            public void onFailure(@NonNull Call<List<DanhMucDichVu>> call, @NonNull Throwable t) {
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi tải Dịch vụ", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // --- API 2: Lấy danh sách Bác sĩ ---
-    private void fetchDoctors() {
-        apiService.getAllNhanVien().enqueue(new Callback<List<NhanVien>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<NhanVien>> call, @NonNull Response<List<NhanVien>> response) {
-                List<String> names = new ArrayList<>();
-                names.add("-- Chọn Bác sĩ --");
-
-                if (response.isSuccessful() && response.body() != null) {
-                    doctorList = response.body();
-                    for (NhanVien nv : doctorList) {
-                        names.add(nv.getHo_ten());
-                    }
-                } else {
-                    names.add("Không có bác sĩ nào");
-                }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(NewAppointmentActivity.this,
-                        android.R.layout.simple_spinner_dropdown_item, names);
-                spinnerDoctor.setAdapter(adapter);
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<NhanVien>> call, @NonNull Throwable t) {
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi tải Bác sĩ", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<List<BenhNhan>> call, @NonNull Throwable t) {
+                // Fail silently, người dùng vẫn nhập tay được
             }
         });
     }
 
     private void setupEvents() {
+        // 1. Sự kiện chọn SĐT từ gợi ý
+        actvPatientPhone.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedPhone = (String) parent.getItemAtPosition(position);
+            
+            // Tìm bệnh nhân tương ứng để điền tên
+            for (BenhNhan bn : allPatientsList) {
+                if (selectedPhone.equals(bn.getSo_dien_thoai())) {
+                    etPatientName.setText(bn.getHo_ten());
+                    preSelectedPatientId = bn.get_id(); // Lưu ID lại để dùng luôn
+                    Toast.makeText(this, "Đã chọn bệnh nhân cũ: " + bn.getHo_ten(), Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
+        });
+
+        // 2. Reset ID nếu người dùng sửa lại số điện thoại sau khi chọn
+        actvPatientPhone.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Nếu người dùng gõ thêm/xóa bớt, ID cũ không còn đúng nữa -> Reset về null
+                preSelectedPatientId = null;
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        // 3. Sự kiện Checkbox "Không dùng ĐT"
+        cbNoPhone.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                actvPatientPhone.setText("");
+                actvPatientPhone.setEnabled(false);
+                actvPatientPhone.setHint("Hệ thống tự tạo mã ID");
+                preSelectedPatientId = null; // Reset ID vì đang tạo mới Guest
+            } else {
+                actvPatientPhone.setEnabled(true);
+                actvPatientPhone.setHint("Nhập SĐT để tìm...");
+            }
+        });
+
+        // 4. Các sự kiện Spinner (Copy từ code cũ)
         spinnerService.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    selectedServiceId = null;
-                    selectedServiceName = null;
-                    return;
-                }
+                if (position == 0) { selectedServiceId = null; selectedServiceName = null; return; }
                 int realPos = position - 1;
                 if (realPos >= 0 && realPos < serviceList.size()) {
                     selectedServiceId = serviceList.get(realPos).get_id();
                     selectedServiceName = serviceList.get(realPos).getTen_dich_vu();
                 }
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         spinnerDoctor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    selectedDoctorId = null;
-                    return;
-                }
+                if (position == 0) { selectedDoctorId = null; return; }
                 int realPos = position - 1;
                 if (realPos >= 0 && realPos < doctorList.size()) {
                     selectedDoctorId = doctorList.get(realPos).get_id();
                 }
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         etDateTime.setOnClickListener(v -> showDateTimePicker());
-        btnConfirmAppointment.setOnClickListener(v -> checkPatientAndCreateAppointment());
+        btnConfirmAppointment.setOnClickListener(v -> processAppointment());
+    }
+    
+    // --- CÁC HÀM LOAD DATA (Copy code cũ) ---
+    private void fetchServices() {
+        apiService.getAllDanhMucDichVu().enqueue(new Callback<List<DanhMucDichVu>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<DanhMucDichVu>> call, @NonNull Response<List<DanhMucDichVu>> response) {
+                List<String> names = new ArrayList<>();
+                names.add("-- Chọn Dịch vụ --");
+                if (response.isSuccessful() && response.body() != null) {
+                    serviceList = response.body();
+                    for (DanhMucDichVu s : serviceList) names.add(s.getTen_dich_vu());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(NewAppointmentActivity.this, android.R.layout.simple_spinner_dropdown_item, names);
+                spinnerService.setAdapter(adapter);
+            }
+            @Override public void onFailure(@NonNull Call<List<DanhMucDichVu>> call, @NonNull Throwable t) {}
+        });
     }
 
+    private void fetchDoctors() {
+        apiService.getAllNhanVien().enqueue(new Callback<List<NhanVien>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<NhanVien>> call, @NonNull Response<List<NhanVien>> response) {
+                List<String> names = new ArrayList<>();
+                names.add("-- Chọn Bác sĩ --");
+                if (response.isSuccessful() && response.body() != null) {
+                    doctorList = response.body();
+                    for (NhanVien nv : doctorList) names.add(nv.getHo_ten());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(NewAppointmentActivity.this, android.R.layout.simple_spinner_dropdown_item, names);
+                spinnerDoctor.setAdapter(adapter);
+            }
+            @Override public void onFailure(@NonNull Call<List<NhanVien>> call, @NonNull Throwable t) {}
+        });
+    }
+    
     private void showDateTimePicker() {
         DatePickerDialog datePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
             TimePickerDialog timePicker = new TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 calendar.set(Calendar.MINUTE, minute);
                 calendar.set(Calendar.SECOND, 0);
-
                 SimpleDateFormat sdfDisplay = new SimpleDateFormat("HH:mm - dd/MM/yyyy", Locale.getDefault());
                 etDateTime.setText(sdfDisplay.format(calendar.getTime()));
-
                 SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
                 selectedIsoDateTime = sdfIso.format(calendar.getTime());
-
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
             timePicker.show();
-
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
         datePicker.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         datePicker.show();
     }
 
-    // --- LOGIC CHÍNH ---
-
-    private void checkPatientAndCreateAppointment() {
+    // --- LOGIC XỬ LÝ CHÍNH ---
+    private void processAppointment() {
         String pName = etPatientName.getText().toString().trim();
-        String pPhone = etPatientPhone.getText().toString().trim();
+        String pPhone;
 
-        if (pName.isEmpty() || pPhone.isEmpty()) { Toast.makeText(this, "Nhập Tên và SĐT!", Toast.LENGTH_SHORT).show(); return; }
+        if (cbNoPhone.isChecked()) {
+            pPhone = "GUEST_" + System.currentTimeMillis();
+        } else {
+            pPhone = actvPatientPhone.getText().toString().trim();
+        }
+
+        if (pName.isEmpty()) { Toast.makeText(this, "Nhập tên bệnh nhân!", Toast.LENGTH_SHORT).show(); return; }
+        if (!cbNoPhone.isChecked() && pPhone.isEmpty()) { Toast.makeText(this, "Nhập SĐT!", Toast.LENGTH_SHORT).show(); return; }
         if (selectedDoctorId == null) { Toast.makeText(this, "Chọn Bác sĩ!", Toast.LENGTH_SHORT).show(); return; }
         if (selectedIsoDateTime == null) { Toast.makeText(this, "Chọn Thời gian!", Toast.LENGTH_SHORT).show(); return; }
 
         btnConfirmAppointment.setEnabled(false);
-        btnConfirmAppointment.setText("ĐANG KIỂM TRA SĐT...");
+        btnConfirmAppointment.setText("ĐANG XỬ LÝ...");
 
+        // TỐI ƯU: Nếu đã chọn từ danh sách gợi ý (preSelectedPatientId != null) -> Bỏ qua bước check API
+        if (!cbNoPhone.isChecked() && preSelectedPatientId != null) {
+            postLichHenToApi(preSelectedPatientId, pName, pPhone);
+            return;
+        }
+
+        // Nếu là khách vãng lai (No Phone) -> Tạo mới luôn
+        if (cbNoPhone.isChecked()) {
+            createNewPatientAndAppointment(pName, pPhone);
+            return;
+        }
+
+        // Trường hợp còn lại: Nhập SĐT tay (không chọn gợi ý) -> Check API xem tồn tại chưa
+        String finalPhone = pPhone;
         apiService.getAllBenhNhan().enqueue(new Callback<List<BenhNhan>>() {
             @Override
             public void onResponse(@NonNull Call<List<BenhNhan>> call, @NonNull Response<List<BenhNhan>> response) {
@@ -250,24 +317,24 @@ public class NewAppointmentActivity extends AppCompatActivity {
                     List<BenhNhan> list = response.body();
                     String foundId = null;
                     for (BenhNhan bn : list) {
-                        if (bn.getSo_dien_thoai() != null && bn.getSo_dien_thoai().equals(pPhone)) {
+                        if (bn.getSo_dien_thoai() != null && bn.getSo_dien_thoai().equals(finalPhone)) {
                             foundId = bn.get_id(); break;
                         }
                     }
                     if (foundId != null) {
-                        postLichHenToApi(foundId, pName, pPhone);
+                        postLichHenToApi(foundId, pName, finalPhone);
                     } else {
-                        createNewPatientAndAppointment(pName, pPhone);
+                        createNewPatientAndAppointment(pName, finalPhone);
                     }
                 } else {
-                    createNewPatientAndAppointment(pName, pPhone);
+                    createNewPatientAndAppointment(pName, finalPhone);
                 }
             }
             @Override
             public void onFailure(@NonNull Call<List<BenhNhan>> call, @NonNull Throwable t) {
                 btnConfirmAppointment.setEnabled(true);
-                btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối SĐT", Toast.LENGTH_SHORT).show();
+                btnConfirmAppointment.setText("XÁC NHẬN");
+                Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối kiểm tra", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -276,9 +343,9 @@ public class NewAppointmentActivity extends AppCompatActivity {
         BenhNhan newPatient = new BenhNhan();
         newPatient.setHo_ten(name);
         newPatient.setSo_dien_thoai(phone);
+        newPatient.setDia_chi(phone.startsWith("GUEST_") ? "Khách vãng lai (Không SĐT)" : "Khách vãng lai");
         newPatient.setGioi_tinh("Khac");
         newPatient.setNgay_sinh("2024");
-        newPatient.setDia_chi("Khách vãng lai");
         newPatient.setPassword("123456");
 
         apiService.createBenhNhan(newPatient).enqueue(new Callback<BenhNhan>() {
@@ -289,23 +356,22 @@ public class NewAppointmentActivity extends AppCompatActivity {
                     postLichHenToApi(newId, name, phone);
                 } else {
                     btnConfirmAppointment.setEnabled(true);
-                    btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
+                    btnConfirmAppointment.setText("XÁC NHẬN");
                     Toast.makeText(NewAppointmentActivity.this, "Lỗi tạo hồ sơ", Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override
-            public void onFailure(@NonNull Call<BenhNhan> call, @NonNull Throwable t) {
+            @Override public void onFailure(@NonNull Call<BenhNhan> call, @NonNull Throwable t) {
                 btnConfirmAppointment.setEnabled(true);
-                btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-                Toast.makeText(NewAppointmentActivity.this, "Lỗi tạo hồ sơ!", Toast.LENGTH_SHORT).show();
+                btnConfirmAppointment.setText("XÁC NHẬN");
+                Toast.makeText(NewAppointmentActivity.this, "Lỗi mạng tạo hồ sơ", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // --- HÀM QUAN TRỌNG ĐÃ SỬA ---
     private void postLichHenToApi(String patientId, String pName, String pPhone) {
         String note = etNote.getText().toString().trim();
-        String finalReason = pName + " (" + pPhone + ")";
+        String phoneDisplay = pPhone.startsWith("GUEST_") ? "Không SĐT" : pPhone;
+        String finalReason = pName + " (" + phoneDisplay + ")";
         if (selectedServiceName != null) finalReason += " - DV: " + selectedServiceName;
         if (!note.isEmpty()) finalReason += " - Note: " + note;
 
@@ -316,50 +382,34 @@ public class NewAppointmentActivity extends AppCompatActivity {
         request.setLy_do_kham(finalReason);
         request.setTrang_thai("ChoXacNhan");
 
-        // GỌI API: Dùng Callback<LichHenResponse> khớp với ApiService
         apiService.createLichHen(request).enqueue(new Callback<LichHenResponse>() {
             @Override
             public void onResponse(@NonNull Call<LichHenResponse> call, @NonNull Response<LichHenResponse> response) {
                 btnConfirmAppointment.setEnabled(true);
                 btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-
                 if (response.isSuccessful()) {
                     Toast.makeText(NewAppointmentActivity.this, "✅ Đặt lịch thành công!", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown Error";
-                        Log.e("API_ERROR", "Thất bại: " + errorBody);
-                        Toast.makeText(NewAppointmentActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) { }
+                    Toast.makeText(NewAppointmentActivity.this, "Lỗi Server: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<LichHenResponse> call, @NonNull Throwable t) {
-                btnConfirmAppointment.setEnabled(true);
-                btnConfirmAppointment.setText("XÁC NHẬN TẠO CUỘC HẸN");
-
-                // [XỬ LÝ LỖI THÔNG MINH]
-                // Dù dùng JsonElement, Retrofit vẫn có thể ném IllegalStateException nếu JSON trả về lạ
-                // Nhưng với JsonElement, khả năng này rất thấp.
-                // Nếu vẫn rơi vào đây, ta check xem có phải lỗi parse hay không.
-                
+                // Xử lý lỗi JsonSyntaxException nếu có
                 String msg = t.getMessage();
                 if (msg != null && (msg.contains("JsonSyntax") || msg.contains("IllegalState"))) {
-                    // Nếu lỗi do parse JSON mà HTTP code là 200 (thực tế onFailure ko có http code, nhưng thường là vậy)
-                    // Ta tạm coi là thành công vì DB đã lưu.
-                    Log.w("API_WARNING", "Lỗi parse JSON nhưng có thể đã lưu: " + msg);
                     Toast.makeText(NewAppointmentActivity.this, "✅ Đặt lịch thành công!", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
-                    Toast.makeText(NewAppointmentActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("API_ERROR", "OnFailure: ", t);
+                    btnConfirmAppointment.setEnabled(true);
+                    btnConfirmAppointment.setText("XÁC NHẬN");
+                    Toast.makeText(NewAppointmentActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) { finish(); return true; }

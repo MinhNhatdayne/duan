@@ -27,7 +27,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-            <!-- 1. THÔNG TIN BỆNH NHÂN (NHẬP TAY) -->
+            <!-- 1. THÔNG TIN BỆNH NHÂN -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -65,23 +65,42 @@
                             android:textColorHint="#757575"
                             android:textSize="14sp" />
 
-                    <!-- Input Số Điện Thoại -->
-                    <EditText
-                            android:id="@+id/et_patient_phone"
+                    <!-- [SỬA ĐỔI] Layout chứa AutoCompletePhone + CheckBox -->
+                    <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_search_white"
-                            android:hint="Số điện thoại liên hệ"
-                            android:inputType="phone"
-                            android:paddingHorizontal="12dp"
-                            android:textColor="@android:color/black"
-                            android:textColorHint="#757575"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                        <!-- Đổi EditText thành AutoCompleteTextView -->
+                        <AutoCompleteTextView
+                                android:id="@+id/actv_patient_phone"
+                                android:layout_width="0dp"
+                                android:layout_height="50dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_search_white"
+                                android:hint="Nhập SĐT để tìm..."
+                                android:inputType="phone"
+                                android:paddingHorizontal="12dp"
+                                android:textColor="@android:color/black"
+                                android:textColorHint="#757575"
+                                android:textSize="14sp"
+                                android:completionThreshold="1" />
+
+                        <!-- Checkbox "Không dùng ĐT" -->
+                        <CheckBox
+                                android:id="@+id/cb_no_phone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="Không ĐT"
+                                android:textSize="13sp"/>
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 2. DỊCH VỤ & BÁC SĨ (DROPDOWN) -->
+            <!-- 2. DỊCH VỤ & BÁC SĨ (Giữ nguyên) -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -143,7 +162,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- 3. THỜI GIAN & GHI CHÚ -->
+            <!-- 3. THỜI GIAN & GHI CHÚ (Giữ nguyên) -->
             <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -167,7 +186,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                    <!-- Input Ngày Giờ (Click mở Dialog) -->
                     <EditText
                             android:id="@+id/et_date_time"
                             android:layout_width="match_parent"
@@ -199,7 +217,6 @@
                             android:textColor="@android:color/black"
                             android:textColorHint="#757575"
                             android:textSize="14sp" />
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
