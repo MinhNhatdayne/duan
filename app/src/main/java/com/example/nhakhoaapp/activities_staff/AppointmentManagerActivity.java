@@ -174,22 +174,56 @@ public class AppointmentManagerActivity extends AppCompatActivity {
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_appointment, null);
         builder.setView(view);
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Bo góc đẹp
 
-        // Ánh xạ View trong Dialog
+        // --- 1. ÁNH XẠ VIEW ---
+        TextView tvName = view.findViewById(R.id.tv_patient_name_display);
+        TextView tvPhone = view.findViewById(R.id.tv_patient_phone_display);
+        TextView tvService = view.findViewById(R.id.tv_service_display);
+
         TextView tvDate = view.findViewById(R.id.tv_edit_date);
         TextView tvTime = view.findViewById(R.id.tv_edit_time);
-        EditText etReason = view.findViewById(R.id.et_edit_reason);
+        EditText etNote = view.findViewById(R.id.et_edit_reason);
+
         Button btnSave = view.findViewById(R.id.btn_save_edit);
         Button btnCancel = view.findViewById(R.id.btn_cancel_edit);
 
-        // Parse thời gian cũ để hiển thị và lưu vào tempCalendar
+        // --- 2. ĐỔ DỮ LIỆU ---
+
+        // Tên
+        tvName.setText("Tên: " + item.getTen_benh_nhan());
+
+        // SĐT
+        String sdt = item.getSdt_benh_nhan();
+        if (sdt != null && sdt.startsWith("GUEST_")) sdt = "Khách vãng lai";
+        tvPhone.setText("SĐT: " + (sdt != null ? sdt : "Chưa có"));
+
+        // Xử lý tách Dịch vụ và Ghi chú
+        String fullReason = item.getLy_do_kham();
+        String currentService = "Khám tổng quát"; // Mặc định
+        String currentNote = "";
+
+        if (fullReason != null) {
+            if (fullReason.contains(" - Note: ")) {
+                String[] parts = fullReason.split(" - Note: ");
+                currentService = parts[0];
+                if (parts.length > 1) currentNote = parts[1];
+            } else if (fullReason.startsWith("Note: ")) {
+                currentNote = fullReason;
+            } else {
+                currentService = fullReason;
+            }
+        }
+
+        tvService.setText(currentService); // Hiển thị dịch vụ (không cho sửa)
+        etNote.setText(currentNote);       // Hiển thị note (cho sửa)
+
+        // Thời gian
         parseIsoToCalendar(item.getThoi_gian_hen(), tempCalendar);
-
-        // Hiển thị dữ liệu cũ
         updateDialogDateTimeDisplay(tvDate, tvTime);
-        etReason.setText(item.getLy_do_kham());
 
-        // Sự kiện chọn Ngày
+        // --- 3. SỰ KIỆN ---
+
         tvDate.setOnClickListener(v -> {
             new DatePickerDialog(this, (view1, year, month, dayOfMonth) -> {
                 tempCalendar.set(Calendar.YEAR, year);
@@ -199,24 +233,29 @@ public class AppointmentManagerActivity extends AppCompatActivity {
             }, tempCalendar.get(Calendar.YEAR), tempCalendar.get(Calendar.MONTH), tempCalendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // Sự kiện chọn Giờ
         tvTime.setOnClickListener(v -> {
             new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
                 tempCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 tempCalendar.set(Calendar.MINUTE, minute);
-                tempCalendar.set(Calendar.SECOND, 0); // Reset giây
+                tempCalendar.set(Calendar.SECOND, 0);
                 updateDialogDateTimeDisplay(tvDate, tvTime);
             }, tempCalendar.get(Calendar.HOUR_OF_DAY), tempCalendar.get(Calendar.MINUTE), true).show();
         });
 
-        // Sự kiện Lưu
+        // Biến final để dùng trong onClick
+        String finalCurrentService = currentService;
+
         btnSave.setOnClickListener(v -> {
-            String newReason = etReason.getText().toString().trim();
-            // Convert Calendar về ISO String để gửi API
+            String newNote = etNote.getText().toString().trim();
             String newIsoTime = getIsoStringFromCalendar(tempCalendar);
-            
-            // Gọi API Update
-            updateAppointmentInfo(item, newIsoTime, newReason, dialog);
+
+            // Gộp lại chuỗi lý do: "Dịch vụ cũ - Note: Ghi chú mới"
+            String finalReasonToSend = finalCurrentService;
+            if (!newNote.isEmpty()) {
+                finalReasonToSend += " - Note: " + newNote;
+            }
+
+            updateAppointmentInfo(item, newIsoTime, finalReasonToSend, dialog);
         });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());

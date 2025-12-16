@@ -3,65 +3,131 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@android:color/white"
         android:padding="20dp">
 
     <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chỉnh sửa thông tin"
+            android:text="Cập nhật Lịch hẹn"
             android:textSize="20sp"
+            android:textColor="@color/primary_blue"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="20dp"/>
 
-    <!-- Chọn Ngày -->
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ngày hẹn:"
-            android:textStyle="bold"/>
-    <TextView
-            android:id="@+id/tv_edit_date"
+    <!-- 1. THÔNG TIN BỆNH NHÂN (Read-only) -->
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="20/12/2024"
-            android:textSize="16sp"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:drawableEnd="@android:drawable/ic_menu_my_calendar"
-            android:layout_marginBottom="12dp"/>
+            android:background="#F5F5F5"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
 
-    <!-- Chọn Giờ -->
+        <TextView
+                android:id="@+id/tv_patient_name_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên: Nguyễn Văn A"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000"/>
+
+        <TextView
+                android:id="@+id/tv_patient_phone_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="SĐT: 0987654321"
+                android:textSize="14sp"
+                android:textColor="#555555"/>
+    </LinearLayout>
+
+    <!-- 2. THÔNG TIN DỊCH VỤ (Read-only) -->
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Giờ hẹn:"
+            android:text="Dịch vụ:"
             android:textStyle="bold"/>
     <TextView
-            android:id="@+id/tv_edit_time"
+            android:id="@+id/tv_service_display"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="09:30"
-            android:textSize="16sp"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:drawableEnd="@android:drawable/ic_menu_recent_history"
+            android:text="Khám tổng quát"
+            android:textSize="15sp"
+            android:padding="8dp"
+            android:background="@drawable/bg_search_white"
             android:layout_marginBottom="12dp"/>
+    <!-- Lưu ý: @drawable/bg_search_white là background viền bạn đã có, hoặc dùng @android:drawable/edit_text -->
 
-    <!-- Sửa Ghi chú -->
+    <!-- 3. THỜI GIAN (Editable) -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="12dp">
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ngày hẹn:"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/tv_edit_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="20/12/2024"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:drawableEnd="@android:drawable/ic_menu_my_calendar"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Giờ hẹn:"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/tv_edit_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="09:30"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:drawableEnd="@android:drawable/ic_menu_recent_history"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 4. GHI CHÚ (Editable) -->
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ghi chú / Lý do:"
+            android:text="Ghi chú thêm:"
             android:textStyle="bold"/>
     <EditText
             android:id="@+id/et_edit_reason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nhập lý do..."
+            android:hint="Nhập ghi chú..."
             android:minLines="2"
             android:background="@android:drawable/edit_text"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="24dp"/>
 
     <!-- Nút bấm -->
     <LinearLayout
@@ -76,6 +142,7 @@
                 android:layout_height="wrap_content"
                 android:text="Hủy"
                 android:backgroundTint="#CCCCCC"
+                android:textColor="#333333"
                 android:layout_marginEnd="10dp"/>
 
         <Button
@@ -83,7 +150,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lưu thay đổi"
-                android:backgroundTint="@color/primary_blue"/>
+                android:backgroundTint="@color/primary_blue"
+                android:textColor="@android:color/white"/>
     </LinearLayout>
 
 </LinearLayout>
