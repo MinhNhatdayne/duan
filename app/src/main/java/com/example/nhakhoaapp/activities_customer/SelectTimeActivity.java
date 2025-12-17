@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
 import com.example.nhakhoaapp.adapters.DateSlotAdapter;
-import com.example.nhakhoaapp.adapters.TimeSlotAdapter; // Đảm bảo đã cập nhật Adapter mới
+import com.example.nhakhoaapp.adapters.TimeSlotAdapter; 
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.models_adapter.DateSlot;
-import com.example.nhakhoaapp.models_adapter.TimeSlot; // Import Model mới
+import com.example.nhakhoaapp.models_adapter.TimeSlot; 
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,8 +43,6 @@ public class SelectTimeActivity extends AppCompatActivity {
     private TimeSlotAdapter timeAdapter;
 
     private List<DateSlot> dateSlotList = new ArrayList<>();
-
-    // [SỬA ĐỔI 1] Thay List<String> bằng List<TimeSlot>
     private List<TimeSlot> timeSlotList = new ArrayList<>();
 
     private DateSlot selectedDateSlot = null;
@@ -73,7 +71,7 @@ public class SelectTimeActivity extends AppCompatActivity {
         btn_back_screen = findViewById(R.id.btn_back_screen);
 
         setupDateRecyclerView();
-        setupTimeRecyclerView(); // Khởi tạo danh sách giờ
+        setupTimeRecyclerView(); 
         updateContinueButtonState();
 
         btn_back_screen.setOnClickListener(v -> finish());
@@ -83,6 +81,7 @@ public class SelectTimeActivity extends AppCompatActivity {
                 return;
             }
 
+            // Gọi hàm generate ISO đã sửa múi giờ
             String iso = generateISODateTime(selectedDateSlot.getFullDateString(), selectedTimeSlot);
 
             Intent intent = new Intent(SelectTimeActivity.this, ConfirmationActivity.class);
@@ -104,16 +103,11 @@ public class SelectTimeActivity extends AppCompatActivity {
     private void setupDateRecyclerView() {
         dateSlotList = generateDaysOfMonth();
 
-        // Callback khi chọn ngày
         dateAdapter = new DateSlotAdapter(dateSlotList, (slot, pos) -> {
             selectedDateSlot = slot;
-
-            // [SỬA ĐỔI 2] Khi chọn ngày mới -> Reset giờ đã chọn
             selectedTimeSlot = null;
             timeAdapter.clearSelection();
             updateContinueButtonState();
-
-            // [SỬA ĐỔI 3] Gọi hàm load giờ cho ngày đó (Chuẩn bị cho API)
             loadTimeSlotsForDate(slot.getFullDateString());
         });
 
@@ -137,12 +131,9 @@ public class SelectTimeActivity extends AppCompatActivity {
     }
 
     private void setupTimeRecyclerView() {
-        // [SỬA ĐỔI 4] Tạo dữ liệu mặc định bằng TimeSlot model
         timeSlotList = generateDefaultTimeSlots();
 
-        // Khởi tạo Adapter với model mới
         timeAdapter = new TimeSlotAdapter(timeSlotList, slot -> {
-            // Callback nhận vào đối tượng TimeSlot
             if (slot.isAvailable()) {
                 selectedTimeSlot = slot.getTime();
                 updateContinueButtonState();
@@ -155,51 +146,39 @@ public class SelectTimeActivity extends AppCompatActivity {
         rvTimeSlots.setAdapter(timeAdapter);
     }
 
-    // [SỬA ĐỔI 5] Hàm tạo danh sách giờ mặc định (Tất cả đều available = true)
     private List<TimeSlot> generateDefaultTimeSlots() {
         List<TimeSlot> list = new ArrayList<>();
         String[] times = {"08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
                 "14:00", "14:30", "15:00", "15:30", "16:00"};
 
         for (String t : times) {
-            // Mặc định ban đầu là TRỐNG (true)
             list.add(new TimeSlot(t, true));
         }
         return list;
     }
 
-    // Hiện tại nó chỉ reset về trạng thái mặc định
     private void loadTimeSlotsForDate(String dateString) {
-        // 1. Reset list về mặc định (Tất cả đều trống - true)
         timeSlotList.clear();
         timeSlotList.addAll(generateDefaultTimeSlots());
-        timeAdapter.notifyDataSetChanged(); // Cập nhật giao diện sơ bộ
+        timeAdapter.notifyDataSetChanged(); 
 
-        // 2. Gọi API kiểm tra lịch trùng
-        // dateString ở đây là định dạng yyyy-MM-dd (từ selectedDateSlot.getFullDateString())
         ApiClient.getApiService().getBusySlots(doctorId, dateString).enqueue(new Callback<List<String>>() {
             @Override
             public void onResponse(Call<List<String>> call, Response<List<String>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<String> busySlots = response.body(); // Ví dụ nhận được: ["08:00", "09:30"]
+                    List<String> busySlots = response.body(); 
 
-                    // 3. Duyệt qua danh sách giờ hiển thị, nếu trùng với busySlots thì khóa lại
                     for (TimeSlot slot : timeSlotList) {
-                        // So sánh giờ (String). Nếu backend trả về "8:00" mà app là "08:00" có thể lệch
-                        // Nhưng code backend tôi viết đã ép kiểu 2-digit nên sẽ khớp "08:00"
                         if (busySlots.contains(slot.getTime())) {
-                            slot.setAvailable(false); // Đánh dấu là đã kín
+                            slot.setAvailable(false); 
                         }
                     }
-
-                    // 4. Cập nhật lại giao diện để hiện các ô màu xám
                     timeAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onFailure(Call<List<String>> call, Throwable t) {
-                // Nếu lỗi mạng, tạm thời để trống hoặc thông báo
                 Toast.makeText(SelectTimeActivity.this, "Lỗi kiểm tra lịch: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -208,7 +187,6 @@ public class SelectTimeActivity extends AppCompatActivity {
     private void updateContinueButtonState() {
         boolean ready = selectedDateSlot != null && selectedTimeSlot != null;
         btnContinue.setEnabled(ready);
-        // Thay đổi màu nút cho trực quan
         if (ready) {
             btnContinue.setBackgroundTintList(getResources().getColorStateList(R.color.primary_blue));
         } else {
@@ -216,7 +194,6 @@ public class SelectTimeActivity extends AppCompatActivity {
         }
     }
 
-    // ... (Các hàm Date/Calendar giữ nguyên không đổi) ...
     private void updateMonthHeader() {
         SimpleDateFormat fmt = new SimpleDateFormat("MMMM yyyy", new Locale("vi", "VN"));
         TextView tv = findViewById(R.id.tv_month_year);
@@ -244,20 +221,30 @@ public class SelectTimeActivity extends AppCompatActivity {
         dateSlotList.addAll(generateDaysOfMonth());
         dateAdapter.notifyDataSetChanged();
         selectedDateSlot = null;
-        selectedTimeSlot = null; // Reset time khi đổi tháng
+        selectedTimeSlot = null;
         timeAdapter.clearSelection();
         updateContinueButtonState();
         updateMonthHeader();
     }
 
+    // ===============================================
+    // ⭐ ĐÃ SỬA: SỬ DỤNG MÚI GIỜ HỆ THỐNG (LOCAL)
+    // ===============================================
     private String generateISODateTime(String date, String time) {
         try {
             String input = date + " " + time;
+            // 1. Parse theo giờ địa phương
             SimpleDateFormat localFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             Date parsed = localFmt.parse(input);
+
+            // 2. Format ISO nhưng giữ nguyên múi giờ hiện tại (không chuyển sang UTC)
             SimpleDateFormat isoFmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            isoFmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+            
+            // QUAN TRỌNG: Sử dụng TimeZone mặc định của thiết bị (Asia/Ho_Chi_Minh)
+            isoFmt.setTimeZone(TimeZone.getDefault()); 
+
             return isoFmt.format(parsed);
+
         } catch (ParseException e) {
             e.printStackTrace();
             return null;

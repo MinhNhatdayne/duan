@@ -128,7 +128,15 @@ public class ConfirmationActivity extends AppCompatActivity {
                     Toast.makeText(ConfirmationActivity.this,
                             "Đặt lịch thành công!", Toast.LENGTH_LONG).show();
 
-                    finish();
+                    // Thay vì chỉ finish(), ta chuyển hướng về Dashboard
+                    Intent intent = new Intent(ConfirmationActivity.this, DashboardActivity.class);
+
+                    // Cờ này giúp xóa sạch các Activity cũ (BookingActivity, SelectTimeActivity...) khỏi ngăn xếp
+                    // Để khi user ở Dashboard bấm nút Back sẽ thoát app chứ không quay lại màn hình đặt lịch
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    startActivity(intent);
+                    finish(); // Đóng ConfirmationActivity hiện tại
                 } else {
                     Toast.makeText(ConfirmationActivity.this,
                             "Lỗi tạo lịch: " + response.code(),
