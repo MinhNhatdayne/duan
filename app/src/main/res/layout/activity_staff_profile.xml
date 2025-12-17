@@ -12,7 +12,7 @@
             android:layout_height="0dp"
             android:overScrollMode="never"
             android:scrollbars="none"
-            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_staff"
+            app:layout_constraintBottom_toTopOf="@id/bottom_nav_menu_doctor"
             app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -165,15 +165,15 @@
                         android:orientation="vertical"
                         android:paddingVertical="8dp">
 
-                    <include
-                            android:id="@+id/menu_edit_info"
-                            layout="@layout/item_profile_menu" />
+<!--                    <include-->
+<!--                            android:id="@+id/menu_edit_info"-->
+<!--                            layout="@layout/item_profile_menu" />-->
 
-                    <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginHorizontal="56dp"
-                            android:background="#F0F0F0"/>
+<!--                    <View-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="1dp"-->
+<!--                            android:layout_marginHorizontal="56dp"-->
+<!--                            android:background="#F0F0F0"/>-->
 
                     <include
                             android:id="@+id/menu_change_password"
@@ -197,7 +197,7 @@
 
     <!-- BOTTOM NAVIGATION CỦA STAFF -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation_staff"
+            android:id="@+id/bottom_nav_menu_doctor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
@@ -206,6 +206,6 @@
             app:itemTextColor="@color/primary_blue"
             app:labelVisibilityMode="labeled"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:menu="@menu/bottom_nav_menu_staff" />
+            app:menu="@menu/bottom_nav_menu_doctor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

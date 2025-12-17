@@ -73,7 +73,7 @@ public class StaffProfileActivity extends AppCompatActivity {
         menuChangePassword = findViewById(R.id.menu_change_password);
         menuLogout = findViewById(R.id.menu_logout);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation_staff);
+        bottomNavigationView = findViewById(R.id.bottom_nav_menu_doctor);
     }
 
     private void loadUserProfile() {
@@ -224,14 +224,10 @@ public class StaffProfileActivity extends AppCompatActivity {
                 startActivity(new Intent(this, DailyScheduleActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
-            } else if (id == R.id.nav_staff_appointments) {
-                startActivity(new Intent(this, AppointmentManagerActivity.class));
-                overridePendingTransition(0, 0);
+            }
+            else if (id == R.id.nav_staff_profile) {
                 return true;
             }
-//            else if (id == R.id.nav_staff_profile) {
-//                return true;
-//            }
             return false;
         });
     }

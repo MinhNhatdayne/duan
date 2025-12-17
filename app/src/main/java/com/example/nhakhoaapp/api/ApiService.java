@@ -175,7 +175,9 @@ public interface ApiService {
 
     // [GET] Thống kê Dashboard
     @GET("LichHen/stats/today")
-    Call<AppointmentStats> getTodayAppointmentStats();
+    Call<AppointmentStats> getTodayAppointmentStats(
+            @Query("doctorId") String doctorId  // [MỚI] Thêm tham số này
+    );
 
 
     // ===================== HÓA ĐƠN =====================

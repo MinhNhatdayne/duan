@@ -15,6 +15,9 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.NhaKhoaApp">
         <activity
+                android:name=".activities_staff.DailyScheduleAdminActivity"
+                android:exported="false" />
+        <activity
                 android:name=".activities_staff.EditStaffProfileActivity"
                 android:exported="false" />
         <activity

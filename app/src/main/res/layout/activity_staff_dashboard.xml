@@ -209,27 +209,27 @@
 
             <!-- DANH SÁCH BUTTON CHỨC NĂNG (SOLID BLUE) -->
             <!-- Button 1 -->
-            <Button
-                    android:id="@+id/btn_view_schedule_appointments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:backgroundTint="@color/primary_blue"
-                    android:drawableStart="@android:drawable/ic_menu_today"
-                    android:drawablePadding="16dp"
-                    android:drawableTint="@android:color/white"
-                    android:elevation="4dp"
-                    android:gravity="start|center_vertical"
-                    android:insetBottom="0dp"
-                    android:insetTop="0dp"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="14dp"
-                    android:text="Quản lý Lịch làm việc"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="12dp" />
+<!--            <Button-->
+<!--                    android:id="@+id/btn_view_schedule_appointments"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="12dp"-->
+<!--                    android:backgroundTint="@color/primary_blue"-->
+<!--                    android:drawableStart="@android:drawable/ic_menu_today"-->
+<!--                    android:drawablePadding="16dp"-->
+<!--                    android:drawableTint="@android:color/white"-->
+<!--                    android:elevation="4dp"-->
+<!--                    android:gravity="start|center_vertical"-->
+<!--                    android:insetBottom="0dp"-->
+<!--                    android:insetTop="0dp"-->
+<!--                    android:paddingHorizontal="20dp"-->
+<!--                    android:paddingVertical="14dp"-->
+<!--                    android:text="Quản lý Lịch làm việc"-->
+<!--                    android:textAllCaps="false"-->
+<!--                    android:textColor="@android:color/white"-->
+<!--                    android:textSize="15sp"-->
+<!--                    android:textStyle="bold"-->
+<!--                    app:cornerRadius="12dp" />-->
 
             <!-- Button 2 -->
             <Button
@@ -305,7 +305,7 @@
 
     <!-- BOTTOM NAVIGATION -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation_staff"
+            android:id="@+id/bottom_nav_menu_doctor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
@@ -313,6 +313,6 @@
             app:itemIconTint="@color/primary_blue"
             app:itemTextColor="@color/primary_blue"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:menu="@menu/bottom_nav_menu_staff" />
+            app:menu="@menu/bottom_nav_menu_doctor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

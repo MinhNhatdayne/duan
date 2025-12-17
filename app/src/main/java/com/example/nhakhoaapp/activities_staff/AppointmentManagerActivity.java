@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhakhoaapp.R;
+import com.example.nhakhoaapp.activities.ProfileQuanLyActivity;
 import com.example.nhakhoaapp.adapters.SingleAppointmentAdapter;
 import com.example.nhakhoaapp.api.ApiClient;
 import com.example.nhakhoaapp.api.ApiService;
@@ -107,13 +108,19 @@ public class AppointmentManagerActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
+
             if (id == R.id.nav_staff_home) {
-                startActivity(new Intent(this, StaffDashboardActivity.class));
-                overridePendingTransition(0, 0); finish(); return true;
-            } else if (id == R.id.nav_staff_schedule) {
-                startActivity(new Intent(this, DailyScheduleActivity.class));
-                overridePendingTransition(0, 0); finish(); return true;
+                startActivity(new Intent(this, ManageActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+
             } else if (id == R.id.nav_staff_appointments) {
+                return true; // Đang ở DS Hẹn
+
+            } else if (id == R.id.nav_staff_profile) {
+                startActivity(new Intent(this, ProfileQuanLyActivity.class)); // Hoặc StaffProfileActivity
+                overridePendingTransition(0, 0);
                 return true;
             }
             return false;

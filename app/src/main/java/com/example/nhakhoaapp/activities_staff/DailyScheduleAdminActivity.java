@@ -4,14 +4,13 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences; // Import SharedPreferences
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.PopupMenu;
+import android.widget.PopupMenu; // Import PopupMenu
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +30,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +39,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DailyScheduleActivity extends AppCompatActivity {
+public class DailyScheduleAdminActivity extends AppCompatActivity {
 
     private RecyclerView rvAppointments;
     private TextView tvCurrentDate, tvAppointmentCount;
@@ -50,19 +48,12 @@ public class DailyScheduleActivity extends AppCompatActivity {
     private DailyAppointmentAdapter adapter;
     private Calendar tempCalendar = Calendar.getInstance();
 
-    // [MỚI] Biến lưu ID bác sĩ đang đăng nhập
-    private String currentDoctorId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_daily_schedule);
+        setContentView(R.layout.activity_daily_schedule_admin);
 
         apiService = ApiClient.getApiService();
-
-        // [MỚI] Lấy ID bác sĩ từ SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        currentDoctorId = prefs.getString("USER_ID", "");
 
         rvAppointments = findViewById(R.id.rv_daily_appointments);
         tvCurrentDate = findViewById(R.id.tv_current_date);
@@ -77,7 +68,7 @@ public class DailyScheduleActivity extends AppCompatActivity {
         updateDateDisplay();
         fetchDailySchedule();
 
-        bottomNavigationView = findViewById(R.id.bottom_nav_menu_doctor);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_admin);
         bottomNavigationView.setOnItemSelectedListener(this::handleStaffNavigation);
     }
 
@@ -91,14 +82,13 @@ public class DailyScheduleActivity extends AppCompatActivity {
     private boolean handleStaffNavigation(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_staff_home) {
-            startActivity(new Intent(this, StaffDashboardActivity.class));
+            startActivity(new Intent(this, ManageActivity.class));
             overridePendingTransition(0, 0); finish(); return true;
         } else if (id == R.id.nav_staff_schedule) {
-            return true;
-        } else if (id == R.id.nav_staff_appointments) {
-            startActivity(new Intent(this, AppointmentManagerActivity.class));
-            overridePendingTransition(0, 0); return true;
-        } else if (id == R.id.nav_staff_profile) {
+            startActivity(new Intent(this, DailyScheduleAdminActivity.class));
+            overridePendingTransition(0, 0); finish(); return true;
+        }
+        else if (id == R.id.nav_staff_profile) {
             startActivity(new Intent(this, StaffProfileActivity.class));
             overridePendingTransition(0, 0); return true;
         }
@@ -109,14 +99,17 @@ public class DailyScheduleActivity extends AppCompatActivity {
         rvAppointments.setLayoutManager(new LinearLayoutManager(this));
         adapter = new DailyAppointmentAdapter(this, new ArrayList<>());
 
+        // [CẬP NHẬT LISTENER] Xử lý click và click 3 chấm
         adapter.setOnItemActionClickListener(new DailyAppointmentAdapter.OnItemActionClickListener() {
             @Override
             public void onMoreActionClick(LichHenResponse item, View view) {
+                // Khi bấm nút 3 chấm -> Hiện Menu
                 showPopupMenu(item, view);
             }
 
             @Override
             public void onItemClick(LichHenResponse item) {
+                // Khi bấm vào item -> Mở nhanh dialog Sửa (hoặc xem chi tiết)
                 showEditDialog(item);
             }
         });
@@ -124,77 +117,8 @@ public class DailyScheduleActivity extends AppCompatActivity {
         rvAppointments.setAdapter(adapter);
     }
 
-    // --- API FETCH LIST (ĐÃ SỬA LOGIC LỌC) ---
-    private void fetchDailySchedule() {
-        tvAppointmentCount.setText("Đang tải lịch hẹn...");
-
-        apiService.getTodayAppointments().enqueue(new Callback<List<LichHenResponse>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<LichHenResponse>> call, @NonNull Response<List<LichHenResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<LichHenResponse> allAppointments = response.body();
-                    List<LichHenResponse> myAppointments = new ArrayList<>();
-
-                    // [LOGIC MỚI] Lọc danh sách: Chỉ lấy lịch của Bác sĩ đang đăng nhập
-                    if (currentDoctorId != null && !currentDoctorId.isEmpty()) {
-                        for (LichHenResponse item : allAppointments) {
-                            // getRawBacSiId() là hàm ta đã thêm vào Model LichHenResponse
-                            String docId = item.getRawBacSiId();
-                            if (docId != null && docId.equals(currentDoctorId)) {
-                                myAppointments.add(item);
-                            }
-                        }
-                    } else {
-                        // Trường hợp lỗi không lấy được ID đăng nhập, có thể hiển thị rỗng hoặc hiển thị hết (tuỳ logic)
-                        // Ở đây tôi chọn hiển thị rỗng để bảo mật
-                        myAppointments.clear();
-                    }
-
-                    if (adapter != null) adapter.setData(myAppointments);
-                    updateSummary(myAppointments);
-
-                } else {
-                    Toast.makeText(DailyScheduleActivity.this, "Không có lịch hẹn hôm nay", Toast.LENGTH_SHORT).show();
-                    updateSummary(new ArrayList<>());
-                    if (adapter != null) adapter.setData(new ArrayList<>());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<LichHenResponse>> call, @NonNull Throwable t) {
-                Toast.makeText(DailyScheduleActivity.this, "Lỗi kết nối API: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                updateSummary(new ArrayList<>());
-            }
-        });
-    }
-
-    private void updateDateDisplay() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
-        String today = dateFormat.format(Calendar.getInstance().getTime());
-        tvCurrentDate.setText(String.format("Hôm nay: %s", today));
-    }
-
-    private void updateSummary(List<LichHenResponse> appointments) {
-        int total = appointments.size();
-        long pending = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            pending = appointments.stream()
-                    .filter(l -> "ChoXacNhan".equals(l.getTrang_thai()))
-                    .count();
-        } else {
-            for (LichHenResponse item : appointments) {
-                if ("ChoXacNhan".equals(item.getTrang_thai())) pending++;
-            }
-        }
-        tvAppointmentCount.setText(String.format("Tổng số: %d (Chờ xác nhận: %d)", total, pending));
-    }
-
-    // ... (Các phần code Dialog Sửa, Menu, Update, Delete giữ nguyên như cũ) ...
-    // Để tiết kiệm không gian, tôi không copy lại phần Dialog/Menu vì nó không thay đổi so với code trước
-    // Bạn hãy giữ nguyên phần đó nhé.
-
     // ==========================================
-    // MENU POPUP (Gom 3 chức năng)
+    // 1. MENU POPUP (Gom 3 chức năng)
     // ==========================================
     private void showPopupMenu(LichHenResponse item, View view) {
         PopupMenu popup = new PopupMenu(this, view);
@@ -221,6 +145,9 @@ public class DailyScheduleActivity extends AppCompatActivity {
         popup.show();
     }
 
+    // ==========================================
+    // 2. CHỨC NĂNG SỬA THÔNG TIN
+    // ==========================================
     private void showEditDialog(LichHenResponse item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_appointment, null);
@@ -301,17 +228,20 @@ public class DailyScheduleActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LichHenResponse> call, Response<LichHenResponse> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(DailyScheduleActivity.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DailyScheduleAdminActivity.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
                     if(dialog != null) dialog.dismiss();
                     fetchDailySchedule();
                 } else {
-                    Toast.makeText(DailyScheduleActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DailyScheduleAdminActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<LichHenResponse> call, Throwable t) { Toast.makeText(DailyScheduleActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show(); }
+            @Override public void onFailure(Call<LichHenResponse> call, Throwable t) { Toast.makeText(DailyScheduleAdminActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show(); }
         });
     }
 
+    // ==========================================
+    // 3. CHỨC NĂNG CẬP NHẬT TRẠNG THÁI
+    // ==========================================
     private void showUpdateStatusDialog(LichHenResponse item) {
         String[] statuses = {"ChoXacNhan", "DaXacNhan", "DaKham", "Huy"};
         String[] displayStatuses = {"Chờ xác nhận", "Đã xác nhận (Chờ khám)", "Đã khám (Hoàn tất)", "Hủy lịch"};
@@ -324,6 +254,7 @@ public class DailyScheduleActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Cập nhật trạng thái")
                 .setSingleChoiceItems(displayStatuses, checkedItem, (dialog, which) -> {
+                    // Tái sử dụng hàm updateFullInfo nhưng giữ nguyên thời gian và lý do cũ
                     updateFullInfo(item, item.getThoi_gian_hen(), item.getLy_do_kham(), statuses[which], null);
                     dialog.dismiss();
                 })
@@ -331,6 +262,9 @@ public class DailyScheduleActivity extends AppCompatActivity {
                 .show();
     }
 
+    // ==========================================
+    // 4. CHỨC NĂNG XÓA
+    // ==========================================
     private void showDeleteConfirmation(LichHenResponse item) {
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận xóa")
@@ -345,16 +279,17 @@ public class DailyScheduleActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(DailyScheduleActivity.this, "Đã xóa!", Toast.LENGTH_SHORT).show();
-                    fetchDailySchedule();
+                    Toast.makeText(DailyScheduleAdminActivity.this, "Đã xóa!", Toast.LENGTH_SHORT).show();
+                    fetchDailySchedule(); // Load lại
                 } else {
-                    Toast.makeText(DailyScheduleActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DailyScheduleAdminActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<Void> call, Throwable t) { Toast.makeText(DailyScheduleActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show(); }
+            @Override public void onFailure(Call<Void> call, Throwable t) { Toast.makeText(DailyScheduleAdminActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show(); }
         });
     }
 
+    // --- HELPER TIME ---
     private void updateDialogDateTimeDisplay(TextView tvDate, TextView tvTime) {
         SimpleDateFormat sdfDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -378,12 +313,51 @@ public class DailyScheduleActivity extends AppCompatActivity {
         return sdf.format(cal.getTime());
     }
 
+    // --- API FETCH LIST ---
+    private void fetchDailySchedule() {
+        tvAppointmentCount.setText("Đang tải lịch hẹn...");
+        apiService.getTodayAppointments().enqueue(new Callback<List<LichHenResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<LichHenResponse>> call, @NonNull Response<List<LichHenResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<LichHenResponse> appointments = response.body();
+                    if (adapter != null) adapter.setData(appointments);
+                    updateSummary(appointments);
+                } else {
+                    Toast.makeText(DailyScheduleAdminActivity.this, "Hôm nay trống lịch", Toast.LENGTH_SHORT).show();
+                    updateSummary(new ArrayList<>());
+                    if (adapter != null) adapter.setData(new ArrayList<>());
+                }
+            }
+            @Override public void onFailure(@NonNull Call<List<LichHenResponse>> call, @NonNull Throwable t) {
+                Toast.makeText(DailyScheduleAdminActivity.this, "Lỗi API: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                updateSummary(new ArrayList<>());
+            }
+        });
+    }
+
+    private void updateDateDisplay() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
+        String today = dateFormat.format(Calendar.getInstance().getTime());
+        tvCurrentDate.setText(String.format("Hôm nay: %s", today));
+    }
+
+    private void updateSummary(List<LichHenResponse> appointments) {
+        int total = appointments.size();
+        long pending = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            pending = appointments.stream().filter(l -> "ChoXacNhan".equals(l.getTrang_thai())).count();
+        } else {
+            for (LichHenResponse item : appointments) {
+                if ("ChoXacNhan".equals(item.getTrang_thai())) pending++;
+            }
+        }
+        tvAppointmentCount.setText(String.format("Tổng số: %d (Chờ xác nhận: %d)", total, pending));
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
+        if (item.getItemId() == android.R.id.home) { finish(); return true; }
         return super.onOptionsItemSelected(item);
     }
 }

@@ -7,15 +7,15 @@
             android:icon="@android:drawable/ic_menu_view"
             android:title="Tổng quan" />
 
-    <!-- Tab 3: Quản lý tất cả cuộc hẹn (Appointment Manager) -->
+    <!-- Tab 2: Lịch làm việc hôm nay (Daily Schedule) -->
     <item
-            android:id="@+id/nav_staff_appointments"
+            android:id="@+id/nav_staff_schedule"
             android:icon="@android:drawable/ic_menu_today"
             android:title="Lịch ngày" />
 
-    <!-- Tab 4: Quản lý tất cả cuộc hẹn (Appointment Manager) -->
+    <!-- Tab 3: Quản lý profile -->
     <item
             android:id="@+id/nav_staff_profile"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="DS Hẹn" />
+            android:icon="@drawable/ic_student"
+            android:title="Tôi" />
 </menu>

@@ -5,7 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#F5F5F5"
-        tools:context=".activities_staff.DailyScheduleActivity">
+        tools:context=".activities_staff.DailyScheduleAdminActivity">
 
     <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -51,20 +51,21 @@
             android:layout_height="0dp"
             android:padding="16dp"
             app:layout_constraintTop_toBottomOf="@id/summary_layout"
-            app:layout_constraintBottom_toTopOf="@id/bottom_nav_menu_doctor"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_staff"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_appointment_staff"/>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_nav_menu_doctor"
+            android:id="@+id/bottom_navigation_admin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             app:elevation="8dp"
             app:itemIconTint="@color/primary_blue"
             app:itemTextColor="@color/primary_blue"
+            app:labelVisibilityMode="labeled"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:menu="@menu/bottom_nav_menu_doctor" />
+            app:menu="@menu/bottom_nav_menu_staff" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
